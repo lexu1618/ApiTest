@@ -221,8 +221,8 @@ def Api_send(request):
     ts_api_name = request.GET["api_name"]
     api_id = request.GET["api_id"]
     ts_method = request.GET["ts_method"]
-    ts_url = request.GET["ts_url"],
-    ts_host = request.GET["ts_host"],
+    ts_url = request.GET["ts_url"]
+    ts_host = request.GET["ts_host"]
     ts_header = request.GET["ts_header"]
     ts_body_method = request.GET["ts_body_method"]
 
@@ -248,17 +248,17 @@ def Api_send(request):
     elif ts_host[-1] != '/' and ts_url[0] != '/':  # 都没有/
         url = ts_host + '/' + ts_url
     else:
-        url = ts_host + ts_host  # 有一个/
+        url = ts_host + ts_url  # 有一个/
 
     if ts_body_method == 'none':
-        res = requests.request(ts_method.upper(), url, header=header, data={})
+        res = requests.request(ts_method.upper(), url, headers=header, data={})
 
     elif ts_body_method == "form-data":
         files = []
         payload = {}
         for i in eval(ts_api_body):
             payload[i[0]] = i[1]
-        res = requests.request(ts_method.upper(), url, header=header, data=payload, files=files)
+        res = requests.request(ts_method.upper(), url, headers=header, data=payload, files=files)
 
     elif ts_body_method == "x-www-form-urlencoded":
         header["Content-Type"] = 'application/x-www-form-urlencoded'
@@ -266,7 +266,7 @@ def Api_send(request):
         payload = {}
         for i in eval(ts_api_body):
             payload[i[0]] = i[1]
-        res = requests.request(ts_method.upper(), url, header=header, data=payload)
+        res = requests.request(ts_method.upper(), url, headers=header, data=payload)
     else:
         if ts_body_method == 'Text':
             header["Content-Type"] = 'text/plain'
@@ -279,7 +279,7 @@ def Api_send(request):
             header["Content-Type"] = 'text/plain'
         if ts_body_method == 'Xml':
             header["Content-Type"] = 'text/plain'
-        res = requests.request(ts_method.upper(), url, header=header, data=ts_api_body.encode('utf-8'))
+        res = requests.request(ts_method.upper(), url, headers=header, data=ts_api_body.encode('utf-8'))
 
     # 把返回值传递给前端页面
     # return HttpResponse("{'code':200}")
