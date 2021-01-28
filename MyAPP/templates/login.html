@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>测试平台登录</title>
+    <script type="text/javascript" src="/static/201908059658/js/jquery-1.11.0.min.js"></script>
+    <style>
+        body {
+            background: url("/static/login.png");
+        {#背景图的位置是固定于窗口的，不会动#} background-attachment: fixed;
+        {#此时会保持图像的纵横比并将图像缩放成将完全覆盖背景定位区域的最小大小。#} background-size: cover;
+        }
+
+        .b1 {
+            margin-left: -webkit-calc(80%);
+            background-color: #1d7db1;
+            margin-top: 180px;
+            width: 300px;
+            height: 400px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 4px 4px 6px;
+        }
+
+        .input {
+
+            width: 200px;
+            height: 30px;
+            float: right;
+            margin-right: 15px;
+            text-align: center;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="b1">
+    <span style="font-size: 30px;color: #1e1107">接口测试平台</span>
+    <br><br>
+    <span>登录/注册</span>
+    <br><br>
+    <div style="padding-left: 10px;text-align: left;margin-top: 20px">
+        用户名：
+        <input id="username" name="username" class="input" type="text" placeholder="请输入用户名">
+        <br><br><br>
+        密码：
+        <input id="password" name="password" class="input" type="password" placeholder="请输入密码">
+    </div>
+    <br><br><br>
+    <button id="btn" onclick="login()"
+            style="width: 80%;height: 35px;border-radius: 3px;color: white;background-color: #353C48;font-size: large">
+        登录
+    </button>
+    <br><br><br>
+    <span style="font-size: xx-small">若首次登录,请点击 <a href="javascript:register()">注册账号</a></span>
+</div>
+
+
+<script>
+    function login() {
+        user = document.getElementById("username").value;
+        pwd = document.getElementById("password").value;
+        $.get("/login_action", {
+            "username": user,
+            "password": pwd
+        }, function (res) {
+            if (res == "成功") {
+                document.location.href = "/home/"
+            } else {
+                alert("用户名或密码错误")
+            }
+
+        })
+    }
+
+    function register() {
+        user = document.getElementById("username").value;
+        pwd = document.getElementById("password").value;
+        $.get("/register_action", {
+            "username": user,
+            "password": pwd
+        }, function (res) {
+            alert(res)
+        })
+    }
+
+
+</script>
+
+</body>
+</html>
