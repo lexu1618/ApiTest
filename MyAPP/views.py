@@ -6,7 +6,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 
 # Create your views here.
-from MyAPP.models import DB_tucao, DB_home_href, DB_project, DB_apis
+from MyAPP.models import DB_tucao, DB_home_href, DB_project, DB_apis, DB_apis_log
 
 
 @login_required
@@ -18,15 +18,17 @@ def welcome(request):
 # 自带的登陆态检查装饰符login_required
 @login_required
 def home(request):
-    return render(request, "welcome.html", {"whichHTML": "home.html", "oid": ""})
+    return render(request, "welcome.html", {"whichHTML": "home.html", "oid": request.user.id})
 
 
 def child_json(eid, oid=''):
     res = {}
     if eid == 'home.html':
         data = DB_home_href.objects.all()
+        home_log = DB_apis_log.objects.filter(user_id= oid)
         res = {
-            "hrefs": data
+            "hrefs": data,
+            "home_log":home_log
         }
     if eid == 'project_list.html':
         data = DB_project.objects.all()
