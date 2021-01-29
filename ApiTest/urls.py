@@ -54,5 +54,6 @@ urlpatterns = [
     re_path(r"^Api_save/$", Api_save),
     re_path(r"^get_api_data/$", get_api_data),
     re_path(r"^Api_send/$", Api_send),
-    re_path(r"^copy_api/$",copy_api)
+    re_path(r"^copy_api/$",copy_api),
+    re_path(r"^error_request/$",error_request),  # 调用异常测试接口
 ]
