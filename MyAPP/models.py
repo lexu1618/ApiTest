@@ -56,8 +56,8 @@ class DB_apis(models.Model):
     last_api_body = models.CharField(max_length=1000, null=True)  # 上次请求头
 
     def __str__(self):
-        return self.name
-
+        # return self.name
+        return str(self.id)
 
 class DB_apis_log(models.Model):
     user_id = models.CharField(max_length=10, null=True)  # 所属用户id

@@ -41,17 +41,19 @@ def child_json(eid, oid=''):
         res = {"project": project, "apis": apis}
 
     if eid == 'P_cases.html':
-        project = DB_project.objects.filter(id=oid)[0]
-        res = {"project": project}
-
+        project = DB_project.objects.filter(id= oid)[0]
+        Cases = DB_cases.objects.filter(project_id=oid)
+        apis = DB_apis.objects.filter(project_id=oid)
+        for i in apis:
+            print(i.id)
+            print(i.name)
+        res  = {"project":project,"Cases":Cases,"apis":apis}
+        print(res)
     if eid == 'P_project_set.html':
         project = DB_project.objects.filter(id=oid)[0]
         res = {"project": project}
 
-    if eid == 'P_cases.html':
-        Cases = DB_cases.objects.filter(project_id=oid)
-        project = DB_project.objects.filter(id=oid)[0]
-        res = {"Cases": Cases, "project": project}
+
 
     return res
 
@@ -186,15 +188,24 @@ def add_new_step(request):
 
 def delete_step(request, eid):
     # DB_step.objects.filter(id=eid).delete()
-    step = DB_step.objects.filter(id=eid)[0] #获取待删除的step
+    step = DB_step.objects.filter(id=eid)[0]  # 获取待删除的step
     index = step.index  # 获取目标index
-    Case_id = step.Case_id #获取待删除的所属大用例id
-    step.delete()  #删除step
+    Case_id = step.Case_id  # 获取待删除的所属大用例id
+    step.delete()  # 删除step
     for i in DB_step.objects.filter(Case_id=Case_id).filter(index__gt=index):
         # 遍历该大用例下所有序号大于目标index的step
-        i.index -= 1  #执行顺序自减1
+        i.index -= 1  # 执行顺序自减1
         i.save()
     return HttpResponse("")
+
+
+def get_step(request):
+    step_id=request.GET["step_id"]
+    step = DB_step.objects.filter(id=step_id)
+    steplist=list(step.values())[0]
+    print(steplist)
+    return HttpResponse(json.dumps(steplist),content_type='application/json')
+
 
 
 def open_project_set(request, id):
