@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>首页</title>
+</head>
+<body>
+
+{#Overflow-x指定是否要剪辑的左/右边缘的内容.#}
+{#Overflow-y指定是否要剪辑的顶部/底部边缘的内容#}
+{# scroll 裁剪内容 - 提供滚动机制。#}
+<h3>&#12288;您的请求记录：</h3>
+<div id="home_log_plan" style="padding-left: 20px;overflow-y: scroll;width: 320px">
+    {% for i in home_log %}
+        <a href="javascript:home_log_show('{{ i.id }}')" style="text-decoration: none"  class="log" >
+            <span style="font-size: large;color: black">{{ i.api_method }}</span> -
+            {{ i.api_host }}{{ i.api_url }}
+        </a> <br>
+    {% endfor %}
+</div>
+
+
+{#左右侧竖线#}
+<div id="shu" style="width: 2px;background: #262c2c;position: absolute;
+top: 70px;left: 340px; ">&nbsp;</div>
+<script>
+    //获取屏幕的高度
+    var h = document.documentElement.clientHeight;
+    document.getElementById("shu").style.height = (h-85).toString()+'px';
+</script>
+
+</body>
+</html>

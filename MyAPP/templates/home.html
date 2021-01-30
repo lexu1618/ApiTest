@@ -2,31 +2,90 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>首页</title>
+    <style>
+        #tucao_input {
+            border-radius: 5px;
+            border: solid 2px #000000;
+            padding-left: 10px;
+            box-shadow: 4px 4px 9px gray;
+        }
+
+        .btn {
+            width: 100px;
+            border-radius: 10px;
+        }
+
+        body {
+            background: url("/static/bj.jpg");
+            background-size: cover;
+            background-attachment: fixed;
+        }
+    </style>
 </head>
 <body>
+<div style="text-align: center">
+    <h1 style="color: white;margin-left: 310px">
+        <br>
+        欢迎 {{ username }} 使用接口测试平台 <br>
+        welcome to use Apitest
+    </h1>
 
-{#Overflow-x指定是否要剪辑的左/右边缘的内容.#}
-{#Overflow-y指定是否要剪辑的顶部/底部边缘的内容#}
-{# scroll 裁剪内容 - 提供滚动机制。#}
-<h3>&#12288;您的请求记录：</h3>
-<div id="home_log_plan" style="padding-left: 20px;overflow-y: scroll;width: 320px">
-    {% for i in home_log %}
-        <a href="javascript:home_log_show('{{ i.id }}')" style="text-decoration: none"  class="log" >
-            <span style="font-size: large;color: black">{{ i.api_method }}</span> -
-            {{ i.api_host }}{{ i.api_url }}
-        </a> <br>
-    {% endfor %}
+
+
+    {#        中间这里要放 超链接传送门#}
+
+    <div style="border: 1px solid black;border-radius: 10px 0px 0px 10px;background-color: #e3ffe3;opacity: 0.8;color: white;margin-left: 300px">
+        <h3 style="color: #3e2935">欢迎使用传送门：</h3>
+        <strong>
+
+            {% for i in hrefs %}
+                <a href="{{ i.href }}" target="_blank" style="color: red;text-decoration: none">{{ i.name }}</a> <br>
+            {% endfor %}
+
+        </strong>
+        <br>
+    </div>
+    {#        中间这里要放 超链接传送门#}
+
+    <br>
+    <div style="border: 1px solid black;border-radius: 10px 0px 0px 10px;text-align: center;background-color: #e3ffe3;opacity: 0.8;color: white;margin-left: 300px">
+        <h3 style="color: #3e2935">您的项目：</h3>
+        <span style="color: black">
+            {#       这里存放后续的个人项目列表循环，类似传送门的套路 ,点击自己创建的项目可以直接进入项目内     #}
+            </span>
+        <br>
+    </div>
+
+    <br>
+    <div style="border: 1px solid black;border-radius: 10px 0px 0px 10px;text-align: center;background-color: #e3ffe3;opacity: 0.8;color: white;margin-left: 300px">
+        <h3 style="color: #3e2935">最新消息：</h3>
+        <span style="color: black">
+            帮助页面上线；<br>
+            后台开启，仅限有管理权限同学使用；<br>
+            项目列表上线，您现在可以进入所有项目内了 <br>
+                </span>
+        <br>
+    </div>
+
+
+    <div style="position: absolute;bottom: 5px;right: 5px">
+        <textarea id="tucao_input" cols="50" rows="10" placeholder="请输入内容"></textarea>
+        <br><br>
+        <button class="btn" onclick="pei()">提交</button>
+    </div>
 </div>
 
-
-{#左右侧竖线#}
-<div id="shu" style="width: 2px;background: #262c2c;position: absolute;
-top: 70px;left: 340px; ">&nbsp;</div>
 <script>
-    //获取屏幕的高度
-    var h = document.documentElement.clientHeight;
-    document.getElementById("shu").style.height = (h-85).toString()+'px';
+    function pei() {
+        $.get("/pei/", {
+            "tucao_text": document.getElementById('tucao_input').value,
+        }, function (ret) {
+            alert('已成功吐槽！');
+            {#清空输入框#}
+            $("#tucao_input").val("");
+
+        })
+    }
 </script>
 
 </body>

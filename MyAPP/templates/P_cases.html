@@ -24,5 +24,128 @@
     </div>
 </nav>
 
+
+<br><br>
+
+{# 内容栏#}
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th style="width:300px">id</th>
+        <th style="width: -webkit-calc(100% - 500px)">用例名称</th>
+        <th style="width: 350px">操作</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for i in Cases %}
+        <tr>
+            <td>{{ i.id }}</td>
+            <td>{{ i.name }}</td>
+            <td>
+                <div class="btn-group" style="z-index: 0">
+                    <button class="btn btn-success" >运行</button>
+                    <button class="btn btn-default" onclick="show_small('{{i.id  }}','{{ i.name }}')">设置</button>
+                    <button class="btn btn-default">查看报告</button>
+                    <a href="/copy_case/{{ project.id }}/{{ i.id }}"><button  class="btn btn-default">复制</button></a>
+                    <a href="/del_case/{{ project.id }}/{{ i.id }}/"><button class="btn btn-danger">删除</button></a>
+                </div>
+            </td>
+            </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<a href="/add_case/{{ project.id }}/"><button style="margin-left: 10px" class="btn btn-primary">新增用例</button></a>
+
+{#小用例列表#}
+<div id="left_div" style="text-align:center;background-color: white;border: 1px solid black;
+                            z-index: 998;display: none;width:48%;height:100%;
+                            position:absolute;right:100%;top:0px;overflow-y: visible">
+ <p style="position: absolute;bottom: 0;left: 50%;">
+        用例id：<span id="Case_id" style="color: #0fd1ab"></span>
+        用例名称：<span id="Case_name" style="color: #0fd1ab"></span>
+    </p>
+
+    <button  class="btn btn-primary" onclick="add_new_step()">新增小用例接口</button>
+     <button class="btn btn-primary">新增登录态接口</button>
+    <button class="btn btn-danger" style="float: right">关闭</button>
+    <div id="small_list">
+{#        小用例都在这里#}
+        <br>
+
+    </div>
+
+
+</div>
+<script>
+    
+    function refresh_left_div(case_id){
+        //刷新小用例列表专用
+        var d = document.getElementById("small_list");
+        d.innerHTML = ''; //清空旧数据
+        $.get("/get_small/",{
+            "case_id":case_id
+        },function (res) {
+            //开始解析res 并展现
+            res = eval(res);
+            console.log(res);
+            all_steps = res.all_steps;
+            console.log(all_steps);
+            for(var i=0;i<all_steps.length;i++){
+                //这里写生成小用例步骤的button代码
+
+                var bu = document.createElement('button');
+                bu.style = "margin-top:8px;width:90%;height:30px;background:#f5f3f3";
+                bu.className = 'btn btn-default';
+                bu.innerText =all_steps[i].index+ '-' + all_steps[i].name;
+                bu.id = "step_btn_"+all_steps[i].id;
+
+
+                //小步骤删除按钮
+                var del = document.createElement('button');
+                del.className = 'btn btn-default';
+                del.innerText = '删除';
+
+                del.style = "width:60px;height:30px;float:right;margin-top:8px;font-size:x-small"
+                del.id = all_steps[i].id;
+                del.onclick = function(){
+                    $.get('/delete_step/'+this.id+'/',{
+
+                    },function (ret) {
+                        refresh_left_div(document.getElementById('Case_id').innerText)
+                    })
+                };
+
+                d.appendChild(bu);
+                d.append(del);
+            }
+        })
+    }
+
+    function show_small(case_id,Case_name){
+        if(document.getElementById("left_div").style.display == 'none'){
+            $("#left_div").css("display","block");
+            $("#left_div").animate({right:"52%"},"fast");
+        }else{
+            $("#left_div").css("display","none");
+            $("#left_div").animate({right:"100%"},"fast");
+            $("#left_div").css("display","block");
+            $("#left_div").animate({right:"52%"},"fast");
+        }
+        $("#Case_id").text(case_id);
+        $("#Case_name").text(Case_name);
+        refresh_left_div(case_id);
+    }
+    
+    function add_new_step() {
+        var Case_id = document.getElementById('Case_id').innerText;
+        $.get("/add_new_step/",{
+            "Case_id" :Case_id
+        },function (res) {
+            refresh_left_div(Case_id);
+        })
+    }
+    
+</script>
 </body>
 </html>

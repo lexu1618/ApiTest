@@ -54,6 +54,13 @@ urlpatterns = [
     re_path(r"^Api_save/$", Api_save),
     re_path(r"^get_api_data/$", get_api_data),
     re_path(r"^Api_send/$", Api_send),
-    re_path(r"^copy_api/$",copy_api),
-    re_path(r"^error_request/$",error_request),  # 调用异常测试接口
+    re_path(r"^copy_api/$", copy_api),
+    re_path(r"^error_request/$", error_request),  # 调用异常测试接口
+    re_path(r"^add_case/(?P<eid>.*)/$", add_case),  # 增加用例
+    re_path(r"^del_case/(?P<eid>.*)/(?P<oid>.*)/$", del_case),  # 删除用例
+    re_path(r"^copy_case/(?P<eid>.*)/(?P<oid>.*)/$", copy_case),  # 复制用例
+    re_path(r"^get_small/$", get_small),  # 获取小用例步骤的列表数据
+    re_path(r"^add_new_step/$", add_new_step),
+    re_path(r"^delete_step/(?P<eid>.*)/$", delete_step)
+
 ]

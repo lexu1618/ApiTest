@@ -6,7 +6,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 
 # Create your views here.
-from MyAPP.models import DB_tucao, DB_home_href, DB_project, DB_apis, DB_apis_log
+from MyAPP.models import DB_tucao, DB_home_href, DB_project, DB_apis, DB_apis_log, DB_cases, DB_step
 
 
 @login_required
@@ -25,10 +25,10 @@ def child_json(eid, oid=''):
     res = {}
     if eid == 'home.html':
         data = DB_home_href.objects.all()
-        home_log = DB_apis_log.objects.filter(user_id= oid)
+        home_log = DB_apis_log.objects.filter(user_id=oid)
         res = {
             "hrefs": data,
-            "home_log":home_log
+            "home_log": home_log
         }
     if eid == 'project_list.html':
         data = DB_project.objects.all()
@@ -47,6 +47,11 @@ def child_json(eid, oid=''):
     if eid == 'P_project_set.html':
         project = DB_project.objects.filter(id=oid)[0]
         res = {"project": project}
+
+    if eid == 'P_cases.html':
+        Cases = DB_cases.objects.filter(project_id=oid)
+        project = DB_project.objects.filter(id=oid)[0]
+        res = {"Cases": Cases, "project": project}
 
     return res
 
@@ -118,7 +123,13 @@ def project_list(request):
 def delete_project(request):
     id = request.GET["id"]
     DB_project.objects.filter(id=id).delete()
-    DB_apis.objects.filter(project_id=id).delete()
+    DB_apis.objects.filter(project_id=id).delete()  # 删除旗下接口
+    DB_cases.objects.filter(project_id=id).delete()  # 删除旗下用例
+
+    all_Case = DB_cases.objects.filter(project_id=id)
+    for i in all_Case:
+        DB_step.objects.filter(Case_id=i.id).delete()  # 删除步骤
+        i.delete()  # 用例删除自己
     return HttpResponse("")
 
 
@@ -139,6 +150,53 @@ def open_cases(request, id):
     return render(request, "welcome.html", {"whichHTML": "P_cases.html", "oid": project_id})
 
 
+def add_case(request, eid):
+    DB_cases.objects.create(project_id=eid, name='这是新增的待修改用例')
+    return HttpResponseRedirect("/cases/%s/" % eid)
+
+
+def del_case(request, eid, oid):
+    DB_cases.objects.filter(id=oid).delete()
+    DB_step.objects.filter(Case_id=oid).delete()
+    return HttpResponseRedirect("/cases/%s/" % eid)
+
+
+def copy_case(request, eid, oid):
+    old_case = DB_cases.objects.filter(id=oid)[0]
+    DB_cases.objects.create(project_id=old_case.project_id, name=old_case.name + '_副本')
+    return HttpResponseRedirect("/cases/%s/" % eid)
+
+
+def get_small(request):
+    case_id = request.GET["case_id"]
+    steps = DB_step.objects.filter(Case_id=case_id).order_by("index")
+    print(steps)
+    res = {"all_steps": list(steps.values("index", "id", "name"))}
+    print(res)
+    print(type(res))
+    return HttpResponse(json.dumps(res), content_type='application/json')
+
+
+def add_new_step(request):
+    case_id = request.GET["Case_id"]
+    all_len = len(DB_step.objects.filter(Case_id=case_id))
+    DB_step.objects.create(Case_id=case_id, name="我是新步骤", index=all_len + 1)
+    return HttpResponse("")
+
+
+def delete_step(request, eid):
+    # DB_step.objects.filter(id=eid).delete()
+    step = DB_step.objects.filter(id=eid)[0] #获取待删除的step
+    index = step.index  # 获取目标index
+    Case_id = step.Case_id #获取待删除的所属大用例id
+    step.delete()  #删除step
+    for i in DB_step.objects.filter(Case_id=Case_id).filter(index__gt=index):
+        # 遍历该大用例下所有序号大于目标index的step
+        i.index -= 1  #执行顺序自减1
+        i.save()
+    return HttpResponse("")
+
+
 def open_project_set(request, id):
     project_id = id
     return render(request, "welcome.html", {"whichHTML": "P_project_set.html", "oid": project_id})
@@ -155,7 +213,7 @@ def save_project_set(request, id):
 
 def project_api_add(request, id):
     project_id = id
-    DB_apis.objects.create(project_id=project_id,api_method='none')
+    DB_apis.objects.create(project_id=project_id, api_method='none')
     return HttpResponseRedirect("/apis/%s" % project_id)
 
 
@@ -241,7 +299,7 @@ def Api_send(request):
         api = DB_apis.objects.filter(id=api_id)
         api.update(last_body_method=ts_body_method, last_api_body=ts_api_body)
     try:
-    # 发送请求获取返回值
+        # 发送请求获取返回值
         header = json.loads(ts_header)  # 处理header
     except:
         return HttpResponse("请求头不符合json格式！")
@@ -292,29 +350,28 @@ def Api_send(request):
         return HttpResponse(str(e))
 
 
-
 def copy_api(request):
     api_id = request.GET["api_id"]
     # 开始复制接口
     old_api = DB_apis.objects.filter(id=api_id)[0]
     DB_apis.objects.create(
         project_id=old_api.project_id,
-        name = old_api.name + "_副本",
-        api_method = old_api.api_method,
-        api_url = old_api.api_url,
-        api_header = old_api.api_header,
-        api_login = old_api.api_login,
-        api_host = old_api.api_host,
-        des = old_api.des,
-        body_method = old_api.body_method,
-        api_body = old_api.api_body,
-        result = old_api.result,
-        sign = old_api.sign,
-        file_key = old_api.file_key,
-        file_name = old_api.file_name,
-        public_header = old_api.public_header,
-        last_body_method = old_api.last_body_method,
-        last_api_body = old_api.last_api_body,
+        name=old_api.name + "_副本",
+        api_method=old_api.api_method,
+        api_url=old_api.api_url,
+        api_header=old_api.api_header,
+        api_login=old_api.api_login,
+        api_host=old_api.api_host,
+        des=old_api.des,
+        body_method=old_api.body_method,
+        api_body=old_api.api_body,
+        result=old_api.result,
+        sign=old_api.sign,
+        file_key=old_api.file_key,
+        file_name=old_api.file_name,
+        public_header=old_api.public_header,
+        last_body_method=old_api.last_body_method,
+        last_api_body=old_api.last_api_body,
     )
     # 返回
     return HttpResponse("")
@@ -381,11 +438,11 @@ def error_request(request):
     header = api.api_header
     body_method = api.body_method
     header = json.loads(header)
-    if host[-1] == '/' and url[0] =='/': #都有/
+    if host[-1] == '/' and url[0] == '/':  # 都有/
         url = host[:-1] + url
-    elif host[-1] != '/' and url[0] !='/': #都没有/
-        url = host+ '/' + url
-    else: #肯定有一个有/
+    elif host[-1] != '/' and url[0] != '/':  # 都没有/
+        url = host + '/' + url
+    else:  # 肯定有一个有/
         url = host + url
     try:
         if body_method == 'form-data':
@@ -407,9 +464,9 @@ def error_request(request):
             return HttpResponse('非法的请求体类型')
         # 把返回值传递给前端页面
         response.encoding = "utf-8"
-        res_json = {"response":response.text,"span_text":span_text}
+        res_json = {"response": response.text, "span_text": span_text}
         # return HttpResponse(response.text)
-        return HttpResponse(json.dumps(res_json),content_type="application/json")
+        return HttpResponse(json.dumps(res_json), content_type="application/json")
     except:
-        res_json={"response":"对不起，接口异常","span_text":span_text}
-        return HttpResponse(json.dumps(res_json),content_type="application/json")
+        res_json = {"response": "对不起，接口异常", "span_text": span_text}
+        return HttpResponse(json.dumps(res_json), content_type="application/json")
