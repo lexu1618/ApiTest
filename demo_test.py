@@ -20,6 +20,16 @@ class A:
     def demo(self):
         print(1)
 
+
+
+# path = "/queryid"
+# s = path.split("/")
+# print(s)
+# for i in s:
+#     if i != "":
+#         if i[0] != '[':
+
+
 def demo2(self,step):
     print(2)
 A.demo2=demo2

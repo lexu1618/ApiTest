@@ -462,14 +462,14 @@ code:200"></textarea>
                 alert('host必须以http://或https://开头！');
                 return
             }
-            if (step_header != '') {
-                try {
-                    JSON.parse(step_header)
-                } catch (e) {
-                    alert('header请求头不符合json规范！');
-                    return
-                }
-            }
+            {#if (step_header != '') {#}
+            {#    try {#}
+            {#        JSON.parse(step_header)#}
+            {#    } catch (e) {#}
+            {#        alert('header请求头不符合json规范！');#}
+            {#        return#}
+            {#    }#}
+            {# } #}
             var step_body_method = $('ul#myTab li[class="active"]')[0].innerText;
             if (step_body_method == 'none') {
                 var step_api_body = ''

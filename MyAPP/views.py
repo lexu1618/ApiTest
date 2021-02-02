@@ -38,6 +38,8 @@ def child_json(eid, oid=''):
     if eid == 'P_apis.html':
         project = DB_project.objects.filter(id=oid)[0]
         apis = DB_apis.objects.filter(project_id=oid)
+        for i in apis:
+            i.short_url = i.api_url.split("?")[0][:50]
         res = {"project": project, "apis": apis}
 
     if eid == 'P_cases.html':
