@@ -254,6 +254,29 @@ def open_project_set(request, id):
     return render(request, "welcome.html", {"whichHTML": "P_project_set.html", "oid": project_id})
 
 
+
+def Run_Case(request):
+    Case_id = request.GET["Case_id"]
+    Case = DB_cases.objects.filter(id=Case_id)[0]
+    # Case2 = DB_cases.objects.filter(id=Case_id)
+
+    # print("case2 是{}".format(Case2))
+    # print(type(Case2))
+    # print(Case_id)
+    steps = DB_step.objects.filter(Case_id=Case_id)
+    # print("我是传参step：{}".format(steps))
+    from MyAPP.run_case import run
+    run(Case_id,Case.name,steps)
+    return HttpResponse("")
+
+def look_report(request,eid):
+    Case_id = eid
+    return render(request,'Reports/%s.html'%Case_id)
+
+
+
+
+
 def save_project_set(request, id):
     project_id = id
     name = request.GET["name"]

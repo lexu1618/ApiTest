@@ -32,9 +32,9 @@
 <table class="table table-striped">
     <thead>
     <tr>
-        <th style="width:300px">id</th>
+        <th style="width:450px">id</th>
         <th style="width: -webkit-calc(100% - 500px)">用例名称</th>
-        <th style="width: 350px">操作</th>
+        <th style="width: 400px">操作</th>
     </tr>
     </thead>
     <tbody>
@@ -46,7 +46,7 @@
                 <div class="btn-group" style="z-index: 0">
                     <button id="Run_btn_{{ i.id }}" onclick="Run_Case('{{ i.id }}')" class="btn btn-success">运行</button>
                     <button class="btn btn-default" onclick="show_small('{{ i.id }}','{{ i.name }}')">设置</button>
-                    <button class="btn btn-default">查看报告</button>
+                    <a href="/look_report/{{ i.id }}/" target="_blank"><button class="btn btn-default">查看报告</button></a>
                     <a href="/copy_case/{{ project.id }}/{{ i.id }}">
                         <button class="btn btn-default">复制</button>
                     </a>
@@ -173,6 +173,9 @@
     }
 </script>
 
+
+{#右边小步骤窗口#}
+
 <div id="right_div" style="text-align:center;background-color: white;border: 1px solid black;
                             z-index: 998;display: none;width:62%;min-height:100%;
                             position:absolute;left:100%;top:0px;overflow-y: visible">
@@ -201,7 +204,7 @@
 
     <ul class="nav navbar-nav" style="margin-top: 5px;margin-left: 5%;width:90%">
         <li>
-            <select id="step_method" style="height: 35px" class="form-control">
+            <select id="step_method" style="height: 35px;width: 100px" class="form-control">
                 <option value="null">请求方式</option>
                 <option value="get">GET</option>
                 <option value="post">POST</option>
@@ -306,16 +309,23 @@
 
     {#    提取返回值功能#}
     <br>
-    <textarea id="get_path" rows="2" style="width: 90%;background-color: rgba(245,236,222,0.29)"
-              placeholder="提取返回值-路径法"></textarea>
-    <textarea id="get_zz" rows="2" style="width: 90%;background-color: rgba(245,236,222,0.29)"
-              placeholder="提取返回值-正则法"></textarea>
-    <textarea id="assert_zz" rows="2" style="width: 90%;background-color: rgba(245,236,222,0.29)"
-              placeholder="断言返回值-路径法"></textarea>
-    <textarea id="assert_qz" rows="2" style="width: 90%;background-color: rgba(245,236,222,0.29)"
-              placeholder="断言返回值-正则法"></textarea>
-    <textarea id="assert_path" rows="2" style="width: 90%;background-color: rgba(245,236,222,0.29)"
-              placeholder="断言返回值-全文检索"></textarea>
+    <span>提取返回值-路径法</span><br>
+       <textarea id="get_path" rows="2" style="width: 90%;background-color: rgba(245,236,222,0.29)" placeholder="提取返回值-路径法：
+参数名的字符串=路径 这种​方式提取,多个用换行分隔，例子如： name=/data/[3]/username  id=/data/[2]/userid"></textarea>
+    <textarea  id="get_zz"  rows="3" style="width: 90%;background-color: rgba(245,236,222,0.29)" placeholder="提取返回值-正则法：
+参数名的字符串=左边界字符串(.*?)右边界，多个用换行分隔，例子如：  name=username':(.*?),  id=uid':(.*?),"></textarea>
+    <textarea  id="assert_path"  rows="2" style="width: 90%;background-color: rgba(245,236,222,0.29)" placeholder="断言返回值-路径法：
+路径=预期值,字符串必须写引号,等号右侧会被求值。 多个用换行分隔，例如：  /data/[3]/username='wangzijia'    /data/[2]/userid=0123   /data=[1,2,3]"></textarea>
+    <textarea  id="assert_zz"  rows="2" style="width: 90%;background-color: rgba(245,236,222,0.29)" placeholder="断言返回值-正则法：
+左边界字符串(.*?)右边界 = 预期值，预期值全部会被按照字符串处理,所以请不要额外加引号，多个用换行分隔，例如：username':(.*?),='wangzijia'   uid':(.*?),=12345"></textarea>
+    <textarea  id="assert_qz"  rows="2" style="width: 90%;background-color: rgba(245,236,222,0.29)" placeholder="断言返回值-全文检索：
+进行全文检索，存在即通过，全部按照字符串检索，不要加引号，多个用换行分隔，例如：
+123495
+请求成功
+code:200"></textarea>
+
+    <textarea  id="mock_res" rows="5" style="width: 90%;background-color: rgba(245,236,222,0.29)"
+               placeholder="若想mock(写死)返回值，请在此直接写好保存。为空则不启用mock功能。"></textarea>
 
     <br><br><br><br>
     <p style="position: absolute;left: 5px;bottom: 0px">
