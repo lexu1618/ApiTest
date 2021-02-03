@@ -6,7 +6,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 
 # Create your views here.
-from MyAPP.models import DB_tucao, DB_home_href, DB_project, DB_apis, DB_apis_log, DB_cases, DB_step
+from MyAPP.models import DB_tucao, DB_home_href, DB_project, DB_apis, DB_apis_log, DB_cases, DB_step, DB_project_header
 
 
 @login_required
@@ -38,19 +38,27 @@ def child_json(eid, oid=''):
     if eid == 'P_apis.html':
         project = DB_project.objects.filter(id=oid)[0]
         apis = DB_apis.objects.filter(project_id=oid)
+        project_header = DB_project_header.objects.filter(project_id = oid)
+        print(" project_header 是 ",project_header)
         for i in apis:
-            i.short_url = i.api_url.split("?")[0][:50]
-        res = {"project": project, "apis": apis}
+            #  新增接口时，url是未定义类型，所以api界面加载会报错，AttributeError: 'NoneType' object has no attribute 'split'
+            try:
+                i.short_url = i.api_url.split("?")[0][:50]
+            except:
+                i.short_url = ""
+        res = {"project": project, "apis": apis,"project_header":project_header}
 
     if eid == 'P_cases.html':
         project = DB_project.objects.filter(id= oid)[0]
         Cases = DB_cases.objects.filter(project_id=oid)
         apis = DB_apis.objects.filter(project_id=oid)
-        for i in apis:
-            print(i.id)
-            print(i.name)
-        res  = {"project":project,"Cases":Cases,"apis":apis}
+        project_header = DB_project_header.objects.filter(project_id = oid)
+        # for i in apis:
+        #     print(i.id)
+        #     print(i.name)
+        res  = {"project":project,"Cases":Cases,"apis":apis,"project_header":project_header}
         print(res)
+
     if eid == 'P_project_set.html':
         project = DB_project.objects.filter(id=oid)[0]
         res = {"project": project}
@@ -154,6 +162,31 @@ def open_cases(request, id):
     return render(request, "welcome.html", {"whichHTML": "P_cases.html", "oid": project_id})
 
 
+# 保存项目公共请求头
+def save_project_header(request):
+    project_id = request.GET['project_id']
+    req_names = request.GET['req_names']
+    req_keys = request.GET['req_keys']
+    req_values = request.GET['req_values']
+    req_ids = request.GET['req_ids']
+    names = req_names.split(',')
+    keys = req_keys.split(',')
+    values = req_values.split(',')
+    ids = req_ids.split(',')
+    for i in range(len(ids)):
+        if names[i] != '':
+            if ids[i] == 'new':
+                DB_project_header.objects.create(project_id=project_id, name=names[i], key=keys[i], value=values[i])
+            else:
+                DB_project_header.objects.filter(id=ids[i]).update(name=names[i], key=keys[i], value=values[i])
+        else:
+            try:
+                DB_project_header.objects.filter(id=ids[i]).delete()
+            except:
+                pass
+    return HttpResponse('')
+
+
 def add_case(request, eid):
     DB_cases.objects.create(project_id=eid, name='这是新增的待修改用例')
     return HttpResponseRedirect("/cases/%s/" % eid)
@@ -225,6 +258,8 @@ def save_step(request):
     assert_path=request.GET["assert_path"]
     assert_qz=request.GET["assert_qz"]
     assert_zz=request.GET["assert_zz"]
+    mock_res =request.GET["mock_res"]
+    ts_project_headers = request.GET["ts_project_headers"]
 
 
 
@@ -242,6 +277,8 @@ def save_step(request):
                                               assert_path=assert_path,
                                               assert_qz=assert_qz,
                                               assert_zz=assert_zz,
+                                              mock_res = mock_res,
+                                              public_header = ts_project_headers
                                               )
     return HttpResponse('')
 
@@ -290,7 +327,7 @@ def save_project_set(request, id):
 
 def project_api_add(request, id):
     project_id = id
-    DB_apis.objects.create(project_id=project_id, api_method='none')
+    DB_apis.objects.create(project_id=project_id, api_method='none',api_url="")
     return HttpResponseRedirect("/apis/%s" % project_id)
 
 
@@ -321,11 +358,13 @@ def Api_save(request):
     ts_host = request.GET["ts_host"]
     ts_header = request.GET["ts_header"]
     ts_body_method = request.GET["ts_body_method"]
-    print(ts_body_method)
-    print(ts_url)
-    print(type(ts_url))
-    print(ts_host)
-    print(type(ts_host))
+    ts_project_headers =request.GET["ts_project_headers"]
+    print("ts_project_headers",ts_project_headers)
+    # print(ts_body_method)
+    # print(ts_url)
+    # print(type(ts_url))
+    # print(ts_host)
+    # print(type(ts_host))
     if ts_body_method == '返回体':
         api = DB_apis.objects.filter(id=api_id)[0]
         ts_body_method = api.last_body_method
@@ -340,7 +379,8 @@ def Api_save(request):
                                              api_header=ts_header,
                                              api_host=ts_host,
                                              body_method=ts_body_method,
-                                             api_body=ts_api_body)
+                                             api_body=ts_api_body,
+                                             public_header = ts_project_headers)
     return HttpResponse("success")
 
 
@@ -350,6 +390,7 @@ def get_api_data(request):
     # 第三句是返回给前端，但是数据要变成json串。
     api_id = request.GET["api_id"]
     api = DB_apis.objects.filter(id=api_id).values()[0]
+    # print("api :",api)
     return HttpResponse(json.dumps(api), content_type='application/json')
 
 
@@ -362,6 +403,8 @@ def Api_send(request):
     ts_host = request.GET["ts_host"]
     ts_header = request.GET["ts_header"]
     ts_body_method = request.GET["ts_body_method"]
+    # 前段ajax 传过来的时候toString 转化为字符串了，这里要还原成数组
+    ts_project_headers = request.GET["ts_project_headers"].split(",")
 
     if ts_body_method == "返回体":
         print("进入返回体逻辑")
@@ -380,6 +423,16 @@ def Api_send(request):
         header = json.loads(ts_header)  # 处理header
     except:
         return HttpResponse("请求头不符合json格式！")
+
+
+    for i in ts_project_headers:
+        project_header = DB_project_header.objects.filter(id=i)[0]
+        header[project_header.key] = project_header.value
+
+    print("header :",header)
+
+
+
     # 拼接完整url
     if ts_host[-1] == '/' and ts_url[0] == '/':  # 都有/
         url = ts_host[:-1] + ts_url

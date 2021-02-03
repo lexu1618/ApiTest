@@ -23,90 +23,94 @@ class Test(unittest.TestCase):
         assert_path = step.assert_path
         assert_qz = step.assert_qz
         assert_zz = step.assert_zz
+        mock_res = step.mock_res
 
+        if mock_res not in ["",None,"None"]:
+            res = mock_res
+        else:
         # 检查是否需要进行替换占位符  得出来的结果时列表
-        rlist_url = re.findall(r"##(.*?)##", api_url)
-        for i in rlist_url:
-            api_url = api_url.replace("##" + i + "##", str(eval(i)))
+            rlist_url = re.findall(r"##(.*?)##", api_url)
+            for i in rlist_url:
+                api_url = api_url.replace("##" + i + "##", str(eval(i)))
 
-        rlist_header = re.findall(r"##(.*?)##", api_header)
-        for i in rlist_header:
-            api_header = api_header.replace("##" + i + "##", repr(str(eval(i))))
+            rlist_header = re.findall(r"##(.*?)##", api_header)
+            for i in rlist_header:
+                api_header = api_header.replace("##" + i + "##", repr(str(eval(i))))
 
-        # rlist_body = re.findall(r"##(.*?)##", api_body)
-        # for i in rlist_body:
-        #     api_body = api_url.replace("##" + i + "##", eval(i))
+            # rlist_body = re.findall(r"##(.*?)##", api_body)
+            # for i in rlist_body:
+            #     api_body = api_url.replace("##" + i + "##", eval(i))
 
-        if api_body_method == 'none':
-            pass
-        elif api_body_method == 'form-data' and api_body_method == 'x-www-form-urlencoded':
-            rlist_body = re.findall(r"##(.*?)##", api_body)
-            for i in rlist_body:
-                api_body = api_body.replace("##" + i + "##", str(eval(i)))
+            if api_body_method == 'none':
+                pass
+            elif api_body_method == 'form-data' or api_body_method == 'x-www-form-urlencoded':
+                rlist_body = re.findall(r"##(.*?)##", api_body)
+                for i in rlist_body:
+                    api_body = api_body.replace("##" + i + "##", str(eval(i)))
 
-        elif api_body_method == 'Json':
-            rlist_body = re.findall(r"##(.*?)##", api_body)
-            for i in rlist_body:
-                api_body = api_body.replace("##" + i + "##", eval(repr(i)))
+            elif api_body_method == 'Json':
+                rlist_body = re.findall(r"##(.*?)##", api_body)
+                for i in rlist_body:
+                    api_body = api_body.replace("##" + i + "##", eval(repr(i)))
 
-        else:
-            rlist_body = re.findall(r"##(.*?)##", api_body)
-            for i in rlist_body:
-                api_body = api_body.replace("##" + i + "##", str(eval(i)))
+            else:
+                rlist_body = re.findall(r"##(.*?)##", api_body)
+                for i in rlist_body:
+                    api_body = api_body.replace("##" + i + "##", str(eval(i)))
 
-        print("[host]:", api_host)
-        print("[url]:", api_url)
-        print("[header]:", api_header)
-        print("[method]:", api_method)
-        print("[body_method]:", api_body_method)
-        print("[body]:", api_body)
+            print("[host]:", api_host)
+            print("[url]:", api_url)
+            print("[header]:", api_header)
+            print("[method]:", api_method)
+            print("[body_method]:", api_body_method)
+            print("[body]:", api_body)
 
-        # 处理header
-        try:
-            header = json.loads(api_header)  # 处理header
-        except:
-            header = eval(api_header)
+            # 处理header
+            try:
+                header = json.loads(api_header)  # 处理header
+            except:
+                header = eval(api_header)
 
-        # url 拼接
-        if api_host[-1] == '/' and api_url[0] == '/':  # 都有/
-            url = api_host[:-1] + api_url
-        elif api_host[-1] != '/' and api_url[0] != '/':  # 都没有/
-            url = api_host + '/' + api_url
-        else:  # 肯定有一个有/
-            url = api_host + api_url
+            # url 拼接
+            if api_host[-1] == '/' and api_url[0] == '/':  # 都有/
+                url = api_host[:-1] + api_url
+            elif api_host[-1] != '/' and api_url[0] != '/':  # 都没有/
+                url = api_host + '/' + api_url
+            else:  # 肯定有一个有/
+                url = api_host + api_url
 
-        # 根据请求体类型发送请求
-        if api_body_method == "none" or api_body_method == 'null':
-            response = requests.request(api_method.upper(), url, headers=header)
-        elif api_body_method == 'form-data':
-            files = []
-            payload = {}
-            for i in eval(api_body):
-                payload[i[0]] = i[1]
-            response = requests.request(api_method.upper(), url, headers=header, data=payload, files=files)
-        elif api_body_method == 'x-www-form-urlencoded':
-            header['Content-Type'] = 'application/x-www-form-urlencoded'
-            payload = {}
-            for i in eval(api_body):
-                payload[i[0]] = i[1]
-            response = requests.request(api_method.upper(), url, headers=header, data=payload)
+            # 根据请求体类型发送请求
+            if api_body_method == "none" or api_body_method == 'null':
+                response = requests.request(api_method.upper(), url, headers=header)
+            elif api_body_method == 'form-data':
+                files = []
+                payload = {}
+                for i in eval(api_body):
+                    payload[i[0]] = i[1]
+                response = requests.request(api_method.upper(), url, headers=header, data=payload, files=files)
+            elif api_body_method == 'x-www-form-urlencoded':
+                header['Content-Type'] = 'application/x-www-form-urlencoded'
+                payload = {}
+                for i in eval(api_body):
+                    payload[i[0]] = i[1]
+                response = requests.request(api_method.upper(), url, headers=header, data=payload)
 
-        else:
-            if api_body_method == 'Text':
-                header["Content-Type"] = 'text/plain'
-            if api_body_method == 'JavaScript':
-                header["Content-Type"] = 'text/plain'
+            else:
+                if api_body_method == 'Text':
+                    header["Content-Type"] = 'text/plain'
+                if api_body_method == 'JavaScript':
+                    header["Content-Type"] = 'text/plain'
 
-            if api_body_method == 'Json':
-                header["Content-Type"] = 'text/plain'
-            if api_body_method == 'Html':
-                header["Content-Type"] = 'text/plain'
-            if api_body_method == 'Xml':
-                header["Content-Type"] = 'text/plain'
-            # 把返回值传递给前端页面
-            response = requests.request(api_method.upper(), url, headers=header, data=api_body.encode('utf-8'))
-        response.encoding = "utf-8"
-        res = response.text
+                if api_body_method == 'Json':
+                    header["Content-Type"] = 'text/plain'
+                if api_body_method == 'Html':
+                    header["Content-Type"] = 'text/plain'
+                if api_body_method == 'Xml':
+                    header["Content-Type"] = 'text/plain'
+                # 把返回值传递给前端页面
+                response = requests.request(api_method.upper(), url, headers=header, data=api_body.encode('utf-8'))
+            response.encoding = "utf-8"
+            res = response.text
         print("返回体：", res)
         # 对res 进行返回值提取
 
@@ -145,6 +149,7 @@ class Test(unittest.TestCase):
                 key = i.split("=")[0].rstrip()
                 zz = i.split("=")[1].lstrip()
                 value = re.findall(zz, res)[0]
+                # re.findall() 返回是的是列表集，只有一个也是在列表里存的
                 # exec('self.%s = "%s"' % (key, value))
                 exec('global %s\n%s="%s"' % (key, key, value))
 
@@ -152,6 +157,8 @@ class Test(unittest.TestCase):
         # print(self.z_qid)
 
         # 对res 进行断言
+
+        ## 断言--路径
         if assert_path != "":
             for i in assert_path.split("\n"):
                 path = i.split("=")[0].rstrip()
@@ -165,8 +172,24 @@ class Test(unittest.TestCase):
                             py_path += j
                 #           字典["key"]
                 value = eval("%s%s" %(json.loads(res),py_path))
-
                 self.assertEqual(want,value,"值不相等")
+        ## 断言--正则
+        if assert_zz != "":
+            for i in assert_zz.split("\n"):
+                zz = i.split("=")[0].rstrip()
+                want = i.split("=")[1].lstrip()
+                value = re.findall(zz,res)[0]
+                self.assertEqual(want,value)
+
+        ## 断言--全文检索
+        if assert_qz != "":
+            for i in assert_qz.split("\n"):
+                if i not in res:
+                    raise AssertionError("字符串不存在：%s"%i)
+
+
+
+
 
 # 不理解
 def make_defself(step):

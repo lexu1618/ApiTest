@@ -7,11 +7,110 @@
 </head>
 <body>
 
+{#全局请求头#}
+<div id="project_header_div" style="display: none;border-radius:5px;width: 70%;height: 70%;
+position: absolute;left: 15%;top: 15%;box-shadow: 4px 4px 8px grey;z-index: 3;
+padding-left: 10px;background-color: white">
+    <div class="btn-group" style="float: right;margin-top: 5px">
+        <button onclick="project_header_save()" type="button" class="btn btn-success">保存</button>
+        <button onclick="project_header_close()" type="button" class="btn btn-danger">取消</button>
+    </div>
+    <h3>请设置本项目的全局公共请求头：</h3>
+    <br>
+    <div id="header_plan">
+        {% for i in project_header %}
+            <input type="text" name="header_id" value="{{ i.id }}" style="display: none">
+            <input type="text" name="header_name" value="{{ i.name }}" style="width: 20%;margin-top: 3px"
+                   placeholder="请求头name"> = {"
+            <input type="text" name="header_key" value="{{ i.key }}" style="width: 15%;margin-top: 3px"
+                   placeholder="请求头key"> " : "
+            <input type="text" name="header_value" value="{{ i.value }}" style="width: 50%;margin-top: 3px"
+                   placeholder="请求头value"> "}
+            <br>
+        {% endfor %}
+    </div>
+    <br>
+    <button onclick="add_project_header()" class="btn btn-primary">新增</button>
+
+
+</div>
+
+<script>
+    function project_header_div_show() {
+        $("#project_header_div").show();
+    }
+
+    function project_header_close() {
+        document.location.reload();
+    }
+
+    function project_header_save() {
+        var names = document.getElementsByName('header_name');
+        var keys = document.getElementsByName("header_key");
+        var values = document.getElementsByName("header_value");
+        var ids = document.getElementsByName("header_id");
+        var req_ids = [];
+        var req_names = [];
+        var req_keys = [];
+        var req_values = [];
+        for (var i = 0; i < names.length; i++) {
+            //if (names[i].value != "") {
+            req_names.push(names[i].value);
+            req_keys.push(keys[i].value);
+            req_values.push(values[i].value);
+            req_ids.push(ids[i].value)
+            // }
+        }
+        console.log(req_names);
+        console.log(req_keys);
+        console.log(req_values);
+        $.get("/save_project_header/", {
+            "project_id": "{{ project.id }}",
+            "req_names": req_names.toString(),
+            "req_keys": req_keys.toString(),
+            "req_values": req_values.toString(),
+            "req_ids": req_ids.toString()
+        }, function (ret) {
+            document.location.reload();
+        })
+    }
+
+    function add_project_header() {
+        var header_plan = document.getElementById('header_plan');
+        var i0 = document.createElement('input');
+        i0.style.display = 'none';
+        i0.value = 'new';
+        i0.name = "header_id";
+        var i1 = document.createElement('input');
+        i1.style = "width: 20%;margin-top: 3px";
+        i1.placeholder = "请求头name";
+        i1.name = "header_name";
+        var i2 = document.createElement('input');
+        i2.style = "width: 15%;margin-top: 3px";
+        i2.placeholder = "请求头key";
+        i2.name = "header_key";
+        var i3 = document.createElement('input');
+        i3.style = "width: 50%;margin-top: 3px";
+        i3.placeholder = "请求头value";
+        i3.name = "header_value";
+        header_plan.appendChild(i0);
+        header_plan.appendChild(i1);
+        header_plan.appendChild(document.createTextNode(' = {" '));
+        header_plan.appendChild(i2);
+        header_plan.appendChild(document.createTextNode(' " : " '));
+        header_plan.appendChild(i3);
+        header_plan.appendChild(document.createTextNode(' "} '));
+        header_plan.appendChild(document.createElement("br"))
+    }
+</script>
+
+
 {#背景层#}
-<div id="mengceng" style="opacity:0.5;display: none;position:absolute;left: 0;top: 100px;background-color: gray;width: 100%"></div>
+<div id="mengceng"
+     style="opacity:0.5;display: none;position:absolute;left: 0;top: 100px;background-color: gray;width: 100%"></div>
 {#window.screen.availHeight 返回当前屏幕高度(空白空间)#}
 <script>
-    document.getElementById('mengceng').style.height=window.screen.availHeight.toString()+'px';
+    document.getElementById('mengceng').style.height = window.screen.availHeight.toString() + 'px';
 </script>
 
 
@@ -52,7 +151,7 @@
         <tr>
             <td>{{ i.id }}</td>
             <td>{{ i.name }}</td>
-{#            <td>{{ i.api_url }}</td>#}
+            {#            <td>{{ i.api_url }}</td>#}
             <td>{{ i.short_url }}</td>
             <td>{{ i.api_method }}</td>
             <td>
@@ -85,7 +184,6 @@
 </script>
 
 
-
 {#工具栏#}
 <div style="position: fixed;bottom: 0px;width: 100%;background: #f8f8f8;text-align: center;border: 1px solid #e7e7e7">
 
@@ -93,7 +191,7 @@
         <button type="button" class="btn btn-primary"
                 onclick="document.location.href='/project_add_api/{{ project.id }}'">新增接口
         </button>
-        <button type="button" class="btn btn-default">全局请求头</button>
+        <button onclick="project_header_div_show()" type="button" class="btn btn-default">全局请求头</button>
         <button type="button" class="btn btn-default">全局域名</button>
         <button type="button" class="btn btn-default">接口文档导入</button>
         <button type="button" class="btn btn-default">抓包导入</button>
@@ -184,24 +282,44 @@
     </ul>
     <br><br><br>
 
+    {#    请求host#}
     <ul class="nav navbar-nav" style="width: 99%">
         <li style="width: -webkit-calc(100% - 60px)">
             <input id="ts_host" type="text" style="color: #000000;padding-left: 10px;width: 100%;height: 40px"
                    placeholder="host:如http(s)://xxxx.com" value="">
         </li>
         <li>
-            <button style="width: 60px;height: 40px" class="btn btn-default">重置</button>
+            <button onclick="ts_clear_host()" style="width: 60px;height: 40px" class="btn btn-default">重置</button>
         </li>
     </ul>
 
     <br><br><br>
+    {#    请求头#}
     <ul class="nav navbar-nav" style="width: 99%">
-        <li style="width: -webkit-calc(100% - 60px)">
-            <input id="ts_header" type="text" style="color: #000000;padding-left: 10px;width: 100%;height: 40px"
-                   placeholder="header请求头：如{'ContextType':'application/json'}">
+        <li style="width:  -webkit-calc(100% - 127px)">
+            <input id="ts_header" style="color: black;padding-left: 10px;width: 100%;height: 40px;" type="text"
+                   placeholder='header请求头：如{"Content":"application/json"}' value="">
         </li>
         <li>
-            <button style="width: 60px;height: 40px" class="btn btn-default">重置</button>
+            <button type="button" onclick="ts_clear_header()"
+                    style="height: 40px;width: 60px;"
+                    class="btn btn-default"><span>Clear</span></button>
+            <button type="button" onclick="ts_show_project_header()"
+                    style="height: 40px;width: 60px;"
+                    class="btn btn-default"><span>▼️</span></button>
+        </li>
+        <br>
+
+        <li id="ts_project_header_li" style="display: none">
+            {#            <label style="margin-right: 5px"><input type="checkbox">name1</label>#}
+            {#             <label style="margin-right: 5px"><input type="checkbox">name2</label>#}
+            {#             <label style="margin-right: 5px"><input type="checkbox">name3</label>#}
+            {% for i in project_header %}
+                <label style="margin-right: 5px"><input id="checkbox_{{ i.id }}" value="{{ i.id }}"
+                                                        type="checkbox">{{ i.name }}</label>
+            {% endfor %}
+
+
         </li>
     </ul>
 
@@ -254,11 +372,11 @@
             <script>window.jQuery || document.write('<script src="/static/201801271505/js/jquery-1.11.0.min.js"><\/script>')</script>
 
             <script type="text/javascript" src="/static/201801271505/js/bootstable.js"></script>
-{#                        <script type="text/javascript">#}
-{#                            $('#mytable').SetEditable({#}
-{#                                $addButton: $('#add'),#}
-{#                            });#}
-{#                        </script>#}
+            {#                        <script type="text/javascript">#}
+            {#                            $('#mytable').SetEditable({#}
+            {#                                $addButton: $('#add'),#}
+            {#                            });#}
+            {#                        </script>#}
 
         </div>
 
@@ -339,12 +457,12 @@
         $("#ts_response_body").val("")
 
         // 运行第三方表格插件的函数：
-         $('#mytable').SetEditable({
-                $addButton: $('#add'),
-            });
-          $('#mytable2').SetEditable({
-                $addButton: $('#add2'),
-            });
+        $('#mytable').SetEditable({
+            $addButton: $('#add'),
+        });
+        $('#mytable2').SetEditable({
+            $addButton: $('#add2'),
+        });
     }
 
     function ts_close() {
@@ -361,6 +479,15 @@
 
         var ts_header = $("#ts_header").val();
         var ts_body_method = $('ul#myTab li[class="active"]')[0].innerText;
+
+        var project_headers = document.getElementById("ts_project_header_li").children;
+        var ts_project_headers = [];
+        for (var i = 0; i < project_headers.length; i++) {
+            //首先用project_headers获取这li标签下所有 label标签，成为一个列表。然后for循环遍历，此时的project_headers[i]就是某个label，但是这个label内仍然有子元素，也就是我们要定位的input，所以还要再加.children方法来获取它下面的所有子标签，当然input是第一个，所以下标为[0]。
+            if (project_headers[i].children[0].checked == true) {
+                ts_project_headers.push(project_headers[i].children[0].value)
+            }
+        }
         // 判断参数是否填充完
         if (api_name == '') {
             alert("请输入接口名称");
@@ -450,6 +577,7 @@
             "ts_header": ts_header,
             "ts_body_method": ts_body_method,
             "ts_api_body": ts_api_body,
+            "ts_project_headers": ts_project_headers.toString(),
         }, function (res) {
             {#$("#ts").hide();#}
             document.location.reload();
@@ -475,6 +603,16 @@
             $("#ts_url").val(res.api_url);
             $("#ts_host").val(res.api_host);
             $("#ts_header").val(res.api_header);
+            // 公共请求头
+            var project_headers = res.public_header.split(',');
+            for (var i = 0; i < project_headers.length; i++) {
+                try {
+                    document.getElementById('checkbox_' + project_headers[i]).checked = 'checked';
+                } catch (e) {
+
+                }
+            }
+
             //请求体编码
             var body_method = "#" + res.body_method;
             console.log("li a[href=" + body_method + "]")
@@ -539,6 +677,13 @@
         var ts_header = $("#ts_header").val();
         {#alert(ts_header+ts_host+ts_method+ts_url);#}
         var ts_body_method = $("#myTab li[class='active']").text();
+        var project_header = document.getElementById("ts_project_header_li").children;
+        var ts_project_headers = [];
+        for (var i = 0; i < project_headers.length;i++) {
+            if (project_headers[i].children[0].checked == true) {
+                ts_project_headers.push(project_headers[i].children[0].value)
+            }
+        }
 
         // 判断参数是否填充完
         {#if(api_name == ''){alert("请输入接口名称");return}#}
@@ -625,11 +770,27 @@
             "ts_header": ts_header,
             "ts_body_method": ts_body_method,
             "ts_api_body": ts_api_body,
+            "ts_project_headers" :ts_project_headers.toString(),
         }, function (res) {
             $("li a[href=#response]").click();
             $("#ts_response_body").val(res);
         })
     }
+
+    function ts_clear_host() {
+        {#document.getElementById("ts_host").value = "";#}
+        $("#ts_host").val("");
+    }
+
+    function ts_clear_header() {
+        {#document.getElementById("ts_header").value = "";#}
+        $("#ts_header").val("");
+    }
+
+    function ts_show_project_header() {
+        $("#ts_project_header_li").show();
+    }
+
 </script>
 
 {#异常值测试框#}
@@ -641,16 +802,20 @@ box-shadow: 4px 4px 4px gray;padding-left: 10px;">
         <button onclick="error_play()" class="btn btn-success">开始测试</button>
         <button onclick="error_close()" class="btn btn-default">关闭</button>
     </div>
-    <h4 >接口：<large style="color: #0fd1ab" id="error_api_name"></large>  的异常值测试结果如下：</h4>
-    <strong > 替换的异常值参数为：</strong><br>
-    <input id="ready_error_data" type="text" style="color: #000;width: 99%;border-radius: 5px"  value="'a',123,'',' ','./?*&^','中文'">
+    <h4>接口：
+        <large style="color: #0fd1ab" id="error_api_name"></large>
+        的异常值测试结果如下：
+    </h4>
+    <strong> 替换的异常值参数为：</strong><br>
+    <input id="ready_error_data" type="text" style="color: #000;width: 99%;border-radius: 5px"
+           value="'a',123,'',' ','./?*&^','中文'">
     <br><br>
-{#    <span>替换： username -> 123</span>#}
-{#    <textarea name="" id="" style="border-radius: 5px;width: 99%;color: #000"></textarea>#}
-{#    <span>替换： username -> ' '</span>#}
-{#    <textarea name="" id="" style="border-radius: 5px;width: 99%;color: #000"></textarea>#}
-{#    <span>替换： username -> "abc"</span>#}
-{#    <textarea name="" id="" style="border-radius: 5px;width: 99%;color: #000"></textarea>#}
+    {#    <span>替换： username -> 123</span>#}
+    {#    <textarea name="" id="" style="border-radius: 5px;width: 99%;color: #000"></textarea>#}
+    {#    <span>替换： username -> ' '</span>#}
+    {#    <textarea name="" id="" style="border-radius: 5px;width: 99%;color: #000"></textarea>#}
+    {#    <span>替换： username -> "abc"</span>#}
+    {#    <textarea name="" id="" style="border-radius: 5px;width: 99%;color: #000"></textarea>#}
 
 </div>
 {#建立一个隐藏的input，然后在error_test运行时，把请求体写进去。在error_play运行时再提取出来即可。#}
@@ -661,7 +826,7 @@ box-shadow: 4px 4px 4px gray;padding-left: 10px;">
 
     function error_test(api_id) {
         {# 新增了一个隐藏的input 用于存放动态id 和value#}
-        var api_body = document.getElementById('api_error_'+api_id ).value;
+        var api_body = document.getElementById('api_error_' + api_id).value;
         {#显示蒙层 设置好蒙层层级关系#}
         $("#mengceng").show();
         $("#mengceng")[0].style.zIndex = '998';
@@ -674,13 +839,13 @@ box-shadow: 4px 4px 4px gray;padding-left: 10px;">
     }
 
 
-    function error_play(){
+    function error_play() {
 
         console.log("assdas");
         api_body = $("#error_api_body").val();
         ready_error_data = $("#ready_error_data").val();
-         // 获取接口id
-        var api_id = document.getElementById('error_api_name').innerText ;
+        // 获取接口id
+        var api_id = document.getElementById('error_api_name').innerText;
         console.log(api_id)
         //把预替换数据从一个大字符串，按逗号解析成数组。
         var r = ready_error_data.split(",");
@@ -689,59 +854,59 @@ box-shadow: 4px 4px 4px gray;padding-left: 10px;">
         //判断是不是fourm-data 或者x-www..的二维数组格式
         try {
             var s = eval(api_body);
-            if(s instanceof Array){
+            if (s instanceof Array) {
                 console.log("这是数组");
-                for(var i=0;i<s.length;i++){
-                    for(var j=0;j<r.length;j++){
-                        var new_body=[];
-                        $.extend(true,new_body,s);
+                for (var i = 0; i < s.length; i++) {
+                    for (var j = 0; j < r.length; j++) {
+                        var new_body = [];
+                        $.extend(true, new_body, s);
                         new_body[i][1] = eval(r[j]);
                         console.log(new_body);
                         //参数替换规则
-                        var span_text = '替换'+new_body[i][0] + '---->' +r[j];
-                        $.get("/error_request/",{
-                           "api_id":api_id,
-                            "new_body":JSON.stringify(new_body),
-                            "span_text":span_text
-                        },function (res) {
+                        var span_text = '替换' + new_body[i][0] + '---->' + r[j];
+                        $.get("/error_request/", {
+                            "api_id": api_id,
+                            "new_body": JSON.stringify(new_body),
+                            "span_text": span_text
+                        }, function (res) {
                             res = eval(res);
-                            error_show_respnse(res.span_text,res.response);
-                       })
+                            error_show_respnse(res.span_text, res.response);
+                        })
 
                     }
                 }
 
-            }else{
+            } else {
                 console.log("这是none");
                 alert("当前请求体不含任何内容！");
             }
             console.log(s);
             // 如果不是就继续判断是不是raw-json格式
-        }catch (e) {
+        } catch (e) {
             try {
                 var s = JSON.parse(api_body);
                 console.log(s);
                 console.log("这是字典json");
-             for(var i in s){
-                 for(var j=0;j<r.length;j++){
+                for (var i in s) {
+                    for (var j = 0; j < r.length; j++) {
                         {#这里的new_body是json格式，不是二维数组了！！！！！！！#}
-                        var new_body={};
-                        $.extend(true,new_body,s);
+                        var new_body = {};
+                        $.extend(true, new_body, s);
                         new_body[i] = eval(r[j]);
                         console.log(new_body);
-                        var span_text = '替换'+ i + '---->' +r[j];
-                      $.get("/error_request/",{
-                           "api_id":api_id,
-                             "new_body":JSON.stringify(new_body),
-                           "span_text":span_text
-                         },function (res) {
+                        var span_text = '替换' + i + '---->' + r[j];
+                        $.get("/error_request/", {
+                            "api_id": api_id,
+                            "new_body": JSON.stringify(new_body),
+                            "span_text": span_text
+                        }, function (res) {
                             res = eval(res);
-                            error_show_respnse(res.span_text,res.response);
-                         })
+                            error_show_respnse(res.span_text, res.response);
+                        })
                     }
                 }
 
-            }catch (e) {
+            } catch (e) {
                 //若也不是，那就不需要做异常测试了
                 alert("当前接口的请求体类型不支持异常值测试");
             }
@@ -750,7 +915,8 @@ box-shadow: 4px 4px 4px gray;padding-left: 10px;">
     }
 
     {#结果展示#}
-    function error_show_respnse(span_text,res) {
+
+    function error_show_respnse(span_text, res) {
         var error_div = document.getElementById('error_div'); // 声明这个请求体展示窗口
         var s = document.createElement('span'); //创造替换标题
         s.innerText = span_text;
@@ -768,21 +934,19 @@ box-shadow: 4px 4px 4px gray;padding-left: 10px;">
         document.location.reload();
     }
 
-    function error_clean(){
+    function error_clean() {
         $("#error_div").html(' <div class="btn-group" style="float: right">' +
-        '<button onclick="error_play()" class="btn btn-success">开始测试</button>' +
-        '<button onclick="error_close()" class="btn btn-default">关闭</button>' +
-    '</div>' +
-    '<h4 >接口：<large style="color: #0fd1ab" id="error_api_name"></large>  的异常值测试结果如下：</h4>' +
-    '<strong> 替换的异常值参数为：</strong><br>' +
-    '<input type="text" style="color: #000;width: 99%;border-radius: 5px" id="ready_error_data" value="\'a\',123,\'\',\' \',\'./?*&^\',\'中文\'">' +
-    '<br><br>')
+            '<button onclick="error_play()" class="btn btn-success">开始测试</button>' +
+            '<button onclick="error_close()" class="btn btn-default">关闭</button>' +
+            '</div>' +
+            '<h4 >接口：<large style="color: #0fd1ab" id="error_api_name"></large>  的异常值测试结果如下：</h4>' +
+            '<strong> 替换的异常值参数为：</strong><br>' +
+            '<input type="text" style="color: #000;width: 99%;border-radius: 5px" id="ready_error_data" value="\'a\',123,\'\',\' \',\'./?*&^\',\'中文\'">' +
+            '<br><br>')
     }
 
 
 </script>
-
-
 
 
 </body>

@@ -236,9 +236,9 @@ function showOutput(id, name) {
     <div style="border: 1px solid #ffffff;border-radius: 10px;box-shadow: 2px 2px 12px #aeaeae;padding-left: 30px;width: 500px">
 <p class='attribute'>接口自动化测试平台提供</p>
 <p class='attribute'><strong>注意:</strong> 出现问题请联系管理员！</p>
-<p class='attribute'><strong>报告生成日期:</strong> 2021-02-02 23:27:18</p>
-<p class='attribute'><strong>用例执行时间:</strong> 0:00:06.075565秒</p>
-<p class='attribute'><strong>用例执行结果:</strong> 通过 1, 失败 1,</p>
+<p class='attribute'><strong>报告生成日期:</strong> 2021-02-03 10:04:57</p>
+<p class='attribute'><strong>用例执行时间:</strong> 0:00:06.041680秒</p>
+<p class='attribute'><strong>用例执行结果:</strong> 通过 2,</p>
 <p class='attribute'><strong>执行系统:</strong> win32</p>
 
 <br>
@@ -277,47 +277,32 @@ function showOutput(id, name) {
 
 </tr>
 
-<tr class='failClass'>
+<tr class='passClass'>
     <td>MyAPP.run_case.Test</td>
     <td>2</td>
-    <td>1</td>
-    <td>1</td>
+    <td>2</td>
+    <td>0</td>
     <td>0</td>
     <td><button class="wqrf_button" style="background-color: #ffd1e7"  onclick="javascript:showClassDetail('c1',2)">详细</button></td>
 
 </tr>
 
-<tr id='ft1.1' class='none'>
-    <td class='failCase'><div class='testcase'>test001: 百度</div></td>
+<tr id='pt1.1' class='hiddenRow'>
+    <td class='none'><div class='testcase'>test001: 百度</div></td>
     <td colspan='5' align='center'>
 
     <!--css div popup start-->
-    <a class="popup_liznk" onfocus='this.blur();' href="javascript:showTestDetail('div_ft1.1')" >
-        <button class="wqrf_button" style="width: auto">失败详情</button></a>
-    <div id='div_ft1.1' class="popup_window">
+    <a class="popup_liznk" onfocus='this.blur();' href="javascript:showTestDetail('div_pt1.1')" >
+        <button class="wqrf_button" style="width: auto">通过详情</button></a>
+    <div id='div_pt1.1' class="popup_window">
         <div style='text-align: right; color:red;cursor:pointer'>
-        <a onfocus='this.blur();' onclick="document.getElementById('div_ft1.1').style.display = 'none' " >
+        <a onfocus='this.blur();' onclick="document.getElementById('div_pt1.1').style.display = 'none' " >
            [x]</a>
         </div>
         <pre>
         
-ft1.1: 步骤的url是/sugrec?prod=pc_his&amp;from=pc_web&amp;json=1&amp;sid=32812_1464_33049_33059_33099_33101_32962_32846_22160&amp;hisdata=&amp;_t=1606109114553&amp;req=2&amp;csor=0
-[host]: http://www.baidu.com
-[url]: /sugrec?prod=pc_his&amp;from=pc_web&amp;json=1&amp;sid=32812_1464_33049_33059_33099_33101_32962_32846_22160&amp;hisdata=&amp;_t=1606109114553&amp;req=2&amp;csor=0
-[header]: {}
-[method]: get
-[body_method]: none
-[body]: 
-返回体： {"err_no":0,"errmsg":"","queryid":"0x34e5960fa0fec5"}
-Traceback (most recent call last):
-  File "D:\ApiTest\MyAPP\run_case.py", line 174, in tool
-    Test.demo(self, step)
-  File "D:\ApiTest\MyAPP\run_case.py", line 169, in demo
-    self.assertEqual(want,value,"值不相等")
-AssertionError: '123456' != '0x34e5960fa0fec5'
-- 123456
-+ 0x34e5960fa0fec5
- : 值不相等
+pt1.1: 步骤的url是/sugrec?prod=pc_his&amp;from=pc_web&amp;json=1&amp;sid=32812_1464_33049_33059_33099_33101_32962_32846_22160&amp;hisdata=&amp;_t=1606109114553&amp;req=2&amp;csor=0
+返回体： {"err_no":0,"errmsg":"","queryid":"xxxxx"}
 
 
          <div id="div100">
@@ -345,8 +330,8 @@ AssertionError: '123456' != '0x34e5960fa0fec5'
         
 pt1.2: 步骤的url是/aaaaa/##qid##bbbb?error=##en##
 [host]: http://www.baidu.com
-[url]: /aaaaa/0x34e5960fa0fec5bbbb?error=0
-[header]: {"a":'0x34e5960fa0fec5',"b":'0'}
+[url]: /aaaaa/xxxxxbbbb?error=0
+[header]: {"a":'xxxxx',"b":'0'}
 [method]: get
 [body_method]: Json
 [body]: {"a":qid,"b":en,"c":0}
@@ -355,7 +340,7 @@ pt1.2: 步骤的url是/aaaaa/##qid##bbbb?error=##en##
 &lt;title&gt;404 Not Found&lt;/title&gt;
 &lt;/head&gt;&lt;body&gt;
 &lt;h1&gt;Not Found&lt;/h1&gt;
-&lt;p&gt;The requested URL /aaaaa/0x34e5960fa0fec5bbbb was not found on this server.&lt;/p&gt;
+&lt;p&gt;The requested URL /aaaaa/xxxxxbbbb was not found on this server.&lt;/p&gt;
 &lt;/body&gt;&lt;/html&gt;
 
 
@@ -372,8 +357,8 @@ pt1.2: 步骤的url是/aaaaa/##qid##bbbb?error=##en##
 <tr id='total_row'>
     <td>总计</td>
     <td>2</td>
-    <td>1</td>
-    <td>1</td>
+    <td>2</td>
+    <td>0</td>
     <td>0</td>
     <td><button class="wqrf_button" style="background-color: #ffc2e6" onclick='javascript:location.reload()'>刷新</button></td>
 
