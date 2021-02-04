@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, re_path
 from MyAPP.views import *
+from MyAPP.views_tools import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -72,5 +73,10 @@ urlpatterns = [
     re_path(r"save_project_host/$", save_project_host),  # 保存全局域名
     re_path(r"project_get_login/$", project_get_login),  # 获取登录态接口
     re_path(r"project_login_save/$", project_login_save),  # 保存项目登录态接口
-    re_path(r"project_login_send/$", project_login_send)  # 调试请求登录态接口
+    re_path(r"project_login_send/$", project_login_send),  # 调试请求登录态接口
+
+    # ------------------------小工具-----------------------
+    re_path(r"tools_zhengjiao/$", zhengjiao),  # 进入正交页面
+    re_path(r"zhengjiao_play/$", zhengjiao_play),  # 正交工具运行
+    re_path(r"zhengjiao_excel/$",zhengjiao_excel),
 ]

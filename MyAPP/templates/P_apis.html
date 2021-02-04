@@ -1457,9 +1457,9 @@ top: 20%;background: white;color: black;padding-left: 10px">
     }
     var login_body_method = $('ul#login_myTab li[class="active"]')[0].innerText;
     if(login_body_method == '返回体'){
-            alert('请切换到请求体tab再保存！');
-            return
-        }
+            alert('请切换到请求体tab再Send！');
+        return
+       }
 
     if(login_body_method == 'none'){
         var login_api_body = ''
@@ -1517,7 +1517,7 @@ top: 20%;background: white;color: black;padding-left: 10px">
     },function (ret) {
         $("li a[href=#login_response]").click(); //点击一下返回体按钮
         ret = eval(ret);
-         document.getElementById('login_response_body').value = ret ;//把返回值显示到返回值多行文本框中
+         document.getElementById('login_response_body').value = ret.response ;//把返回值显示到返回值多行文本框中
         document.getElementById("login_response_result").value = ret.get_res
 
      })
