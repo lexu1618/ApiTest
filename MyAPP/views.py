@@ -40,7 +40,7 @@ def child_json(eid, oid=''):
     if eid == 'P_apis.html':
         project = DB_project.objects.filter(id=oid)[0]
         apis = DB_apis.objects.filter(project_id=oid)
-        project_header = DB_project_header.objects.filter(project_id = oid)
+        project_header = DB_project_header.objects.filter(project_id=oid)
         hosts = DB_host.objects.all()
 
         project_host = DB_project_host.objects.filter(project_id=oid)
@@ -53,27 +53,26 @@ def child_json(eid, oid=''):
                 i.short_url = i.api_url.split("?")[0][:50]
             except:
                 i.short_url = ""
-        res = {"project": project, "apis": apis,"project_header":project_header,
-               "hosts":hosts,"project_host":project_host}
+        res = {"project": project, "apis": apis, "project_header": project_header,
+               "hosts": hosts, "project_host": project_host}
 
     if eid == 'P_cases.html':
-        project = DB_project.objects.filter(id= oid)[0]
+        project = DB_project.objects.filter(id=oid)[0]
         Cases = DB_cases.objects.filter(project_id=oid)
         apis = DB_apis.objects.filter(project_id=oid)
-        project_header = DB_project_header.objects.filter(project_id = oid)
+        project_header = DB_project_header.objects.filter(project_id=oid)
         hosts = DB_host.objects.all()
-        project_host = DB_project_host.objects.filter(project_id = oid)
+        project_host = DB_project_host.objects.filter(project_id=oid)
         # for i in apis:
         #     print(i.id)
         #     print(i.name)
-        res  = {"project":project,"hosts":hosts,"Cases":Cases,"apis":apis,"project_header":project_header,"project_host":project_host}
+        res = {"project": project, "hosts": hosts, "Cases": Cases, "apis": apis, "project_header": project_header,
+               "project_host": project_host}
         print(res)
 
     if eid == 'P_project_set.html':
         project = DB_project.objects.filter(id=oid)[0]
         res = {"project": project}
-
-
 
     return res
 
@@ -196,6 +195,7 @@ def save_project_header(request):
                 pass
     return HttpResponse('')
 
+
 # 保存项目全局域名
 def save_project_host(request):
     project_id = request.GET['project_id']
@@ -211,7 +211,7 @@ def save_project_host(request):
             if ids[i] == 'new':
                 DB_project_host.objects.create(project_id=project_id, name=names[i], host=hosts[i])
             else:
-                DB_project_host.objects.filter(id=ids[i]).update(name=names[i],host=hosts[i])
+                DB_project_host.objects.filter(id=ids[i]).update(name=names[i], host=hosts[i])
         else:
             try:
                 DB_project_host.objects.filter(id=ids[i]).delete()
@@ -246,6 +246,7 @@ def get_small(request):
     print(type(res))
     return HttpResponse(json.dumps(res), content_type='application/json')
 
+
 def save_case_name(request):
     id = request.GET["id"]
     name = request.GET["name"]
@@ -274,11 +275,11 @@ def delete_step(request, eid):
 
 
 def get_step(request):
-    step_id=request.GET["step_id"]
+    step_id = request.GET["step_id"]
     step = DB_step.objects.filter(id=step_id)
-    steplist=list(step.values())[0]
+    steplist = list(step.values())[0]
     print(steplist)
-    return HttpResponse(json.dumps(steplist),content_type='application/json')
+    return HttpResponse(json.dumps(steplist), content_type='application/json')
 
 
 def save_step(request):
@@ -293,14 +294,12 @@ def save_step(request):
     step_api_body = request.GET['step_api_body']
 
     get_path = request.GET["get_path"]
-    get_zz=request.GET["get_zz"]
-    assert_path=request.GET["assert_path"]
-    assert_qz=request.GET["assert_qz"]
-    assert_zz=request.GET["assert_zz"]
-    mock_res =request.GET["mock_res"]
+    get_zz = request.GET["get_zz"]
+    assert_path = request.GET["assert_path"]
+    assert_qz = request.GET["assert_qz"]
+    assert_zz = request.GET["assert_zz"]
+    mock_res = request.GET["mock_res"]
     ts_project_headers = request.GET["ts_project_headers"]
-
-
 
     DB_step.objects.filter(id=step_id).update(name=name,
                                               index=index,
@@ -316,8 +315,8 @@ def save_step(request):
                                               assert_path=assert_path,
                                               assert_qz=assert_qz,
                                               assert_zz=assert_zz,
-                                              mock_res = mock_res,
-                                              public_header = ts_project_headers
+                                              mock_res=mock_res,
+                                              public_header=ts_project_headers
                                               )
     return HttpResponse('')
 
@@ -325,12 +324,12 @@ def save_step(request):
 def step_get_api(request):
     api_id = request.GET["api_id"]
     api = DB_apis.objects.filter(id=api_id).values()[0]
-    return HttpResponse(json.dumps(api),content_type="application/json")
+    return HttpResponse(json.dumps(api), content_type="application/json")
+
 
 def open_project_set(request, id):
     project_id = id
     return render(request, "welcome.html", {"whichHTML": "P_project_set.html", "oid": project_id})
-
 
 
 def Run_Case(request):
@@ -344,15 +343,13 @@ def Run_Case(request):
     steps = DB_step.objects.filter(Case_id=Case_id)
     # print("我是传参step：{}".format(steps))
     from MyAPP.run_case import run
-    run(Case_id,Case.name,steps)
+    run(Case_id, Case.name, steps)
     return HttpResponse("")
 
-def look_report(request,eid):
+
+def look_report(request, eid):
     Case_id = eid
-    return render(request,'Reports/%s.html'%Case_id)
-
-
-
+    return render(request, 'Reports/%s.html' % Case_id)
 
 
 def save_project_set(request, id):
@@ -366,7 +363,7 @@ def save_project_set(request, id):
 
 def project_api_add(request, id):
     project_id = id
-    DB_apis.objects.create(project_id=project_id, api_method='none',api_url="")
+    DB_apis.objects.create(project_id=project_id, api_method='none', api_url="")
     return HttpResponseRedirect("/apis/%s" % project_id)
 
 
@@ -397,8 +394,8 @@ def Api_save(request):
     ts_host = request.GET["ts_host"]
     ts_header = request.GET["ts_header"]
     ts_body_method = request.GET["ts_body_method"]
-    ts_project_headers =request.GET["ts_project_headers"]
-    print("ts_project_headers",ts_project_headers)
+    ts_project_headers = request.GET["ts_project_headers"]
+    print("ts_project_headers", ts_project_headers)
     # print(ts_body_method)
     # print(ts_url)
     # print(type(ts_url))
@@ -419,7 +416,7 @@ def Api_save(request):
                                              api_host=ts_host,
                                              body_method=ts_body_method,
                                              api_body=ts_api_body,
-                                             public_header = ts_project_headers)
+                                             public_header=ts_project_headers)
     return HttpResponse("success")
 
 
@@ -431,6 +428,7 @@ def get_api_data(request):
     api = DB_apis.objects.filter(id=api_id).values()[0]
     # print("api :",api)
     return HttpResponse(json.dumps(api), content_type='application/json')
+
 
 # 调试层发送请求
 def Api_send(request):
@@ -467,13 +465,12 @@ def Api_send(request):
     except:
         return HttpResponse("请求头不符合json格式！")
 
-
     for i in ts_project_headers:
-        if i != "":  #当选择完公共请求头后取消选择，然后再请求就会报错的问题：
+        if i != "":  # 当选择完公共请求头后取消选择，然后再请求就会报错的问题：
             project_header = DB_project_header.objects.filter(id=i)[0]
             header[project_header.key] = project_header.value
 
-    print("header :",header)
+    print("header :", header)
 
     # 拼接完整url
     if ts_host[-1] == '/' and ts_url[0] == '/':  # 都有/
@@ -646,7 +643,6 @@ def error_request(request):
         return HttpResponse(json.dumps(res_json), content_type="application/json")
 
 
-
 def project_get_login(request):
     project_id = request.GET["project_id"]
     # print("project_id:",project_id)
@@ -655,4 +651,130 @@ def project_get_login(request):
     except:
         login = {}
     # print("login:",login)
-    return HttpResponse(json.dumps(login),content_type='application/json')
+    return HttpResponse(json.dumps(login), content_type='application/json')
+
+
+def project_login_save(request):
+    project_id = request.GET["project_id"]
+    login_method = request.GET["login_method"]
+    login_url = request.GET["login_url"]
+    login_host = request.GET["login_host"]
+    login_header = request.GET["login_header"]
+    login_body_method = request.GET["login_body_method"]
+    login_api_body = request.GET["login_api_body"]
+    login_response_set = request.GET["login_response_set"]
+
+    # 保存数据
+    DB_login.objects.filter(project_id=project_id).update(
+        api_method=login_method,
+        api_url=login_url,
+        api_header=login_header,
+        api_host=login_host,
+        body_method=login_body_method,
+        api_body=login_api_body,
+        set=login_response_set
+    )
+    # 返回
+    return HttpResponse("success")
+
+
+def project_login_send(request):
+    # 第一步，获取前端数据
+    login_method = request.GET['login_method']
+    login_url = request.GET['login_url']
+    login_host = request.GET['login_host']
+    login_header = request.GET['login_header']
+    login_body_method = request.GET['login_body_method']
+    login_api_body = request.GET['login_api_body']
+    login_response_set = request.GET['login_response_set']
+
+    # 第二步，发送请求
+    try:
+        header = json.loads(login_header)  # 处理header
+    except:
+        return HttpResponse('请求头不符合json格式！')
+
+    # 拼接完整url
+    if login_host[-1] == '/' and login_url[0] == '/':  # 都有/
+        url = login_host[:-1] + login_url
+    elif login_host[-1] != '/' and login_url[0] != '/':  # 都没有/
+        url = login_host + '/' + login_url
+    else:  # 肯定有一个有/
+        url = login_host + login_url
+    try:
+        if login_body_method == 'none':
+            response = requests.request(login_method.upper(), url, headers=header, data={})
+        elif login_body_method == 'form-data':
+            files = []
+            payload = {}
+            for i in eval(login_api_body):
+                payload[i[0]] = i[1]
+            response = requests.request(login_method.upper(), url, headers=header, data=payload, files=files)
+
+        elif login_body_method == 'x-www-form-urlencoded':
+            header['Content-Type'] = 'application/x-www-form-urlencoded'
+            payload = {}
+            for i in eval(login_api_body):
+                payload[i[0]] = i[1]
+            response = requests.request(login_method.upper(), url, headers=header, data=payload)
+
+        elif login_body_method == 'GraphQL':
+            header['Content-Type'] = 'application/json'
+            query = login_api_body.split('*WQRF*')[0]
+            graphql = login_api_body.split('*WQRF*')[1]
+            try:
+                eval(graphql)
+            except:
+                graphql = '{}'
+            payload = '{"query":"%s","variables":%s}' % (query, graphql)
+            response = requests.request(login_method.upper(), url, headers=header, data=payload)
+
+
+        else:  # 这时肯定是raw的五个子选项：
+            if login_body_method == 'Text':
+                header['Content-Type'] = 'text/plain'
+
+            if login_body_method == 'JavaScript':
+                header['Content-Type'] = 'text/plain'
+
+            if login_body_method == 'Json':
+                header['Content-Type'] = 'text/plain'
+
+            if login_body_method == 'Html':
+                header['Content-Type'] = 'text/plain'
+
+            if login_body_method == 'Xml':
+                header['Content-Type'] = 'text/plain'
+            response = requests.request(login_method.upper(), url, headers=header, data=login_api_body.encode('utf-8'))
+
+        # 把返回值传递给前端页面
+        response.encoding = "utf-8"
+        DB_host.objects.update_or_create(host=login_host)
+        res = response.json()
+
+
+        # 第三步  对返回值进行提取
+        get_res = "" # 声明提取结果存放
+        for i in login_response_set.split("\n"):
+            if i == "":
+                continue
+            else:
+                i = i.replace(' ', '')
+                key = i.split('=')[0]  # 拿出key
+                path = i.split('=')[1]  # 拿出路径
+                value = res
+                for j in path.split('/')[1:]:
+                    value = value[j]
+                get_res += key + '="' + value + '"\n'
+
+            # 第四步，返回前端
+
+        end_res = {"response": response.text, "get_res": get_res}
+
+        return HttpResponse(json.dumps(end_res), content_type='application/json')
+
+    except Exception as e:
+
+        end_res = {"response": str(e), "get_res": ''}
+
+        return HttpResponse(json.dumps(end_res), content_type='application/json')
