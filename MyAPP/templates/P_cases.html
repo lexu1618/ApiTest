@@ -84,9 +84,11 @@
 <div id="left_div" style="text-align:center;background-color: white;border: 1px solid black;
                             z-index: 998;display: none;width:35%;height:100%;
                             position:absolute;right:100%;top:0px;overflow-y: visible">
-    <p style="position: absolute;bottom: 0;left: 50%;">
+    <p style="position: absolute;bottom: 0;left: 5%;">
         用例id：<span id="Case_id" style="color: #0fd1ab"></span>
-        用例名称：<span id="Case_name" style="color: #0fd1ab"></span>
+        {#        用例名称：<span id="Case_name" style="color: #0fd1ab"></span>#}
+        用例名：<input type="text" id="Case_name"
+                   style="width: 50%" placeholder="可输入新名称" onblur="save_case_name()">
     </p>
 
     <button class="btn btn-primary" onclick="add_new_step()">新增小用例接口</button>
@@ -154,9 +156,21 @@
             $("#left_div").animate({right: "65%"}, "fast");
         }
         $("#Case_id").text(case_id);
-        $("#Case_name").text(Case_name);
+        {#$("#Case_name").text(Case_name);#}
+        document.getElementById("Case_name").value = Case_name
         refresh_left_div(case_id);
     }
+
+    //失去焦点
+    function save_case_name() {
+        $.get("/save_case_name/", {
+            "id": document.getElementById("Case_id").innerText,
+            "name": document.getElementById("Case_name").value,
+        }, function (ret) {
+
+        })
+    }
+
 
     function add_new_step() {
         var Case_id = document.getElementById('Case_id').innerText;
@@ -168,9 +182,11 @@
     }
 
     function close_left_div() {
-        $("#left_div").animate({right: "100%"}, "left")
-        $("#left_div").css("display", "none");
-        close_right_div();
+        {#$("#left_div").animate({right: "100%"}, "left")#}
+        {#$("#left_div").css("display", "none");#}
+        {#close_right_div();#}
+
+        document.location.reload();
     }
 </script>
 
@@ -203,6 +219,7 @@
         <input type="text" id="step_name" class="form-control">
     </div>
 
+{#    请求方式#}
     <ul class="nav navbar-nav" style="margin-top: 5px;margin-left: 5%;width:90%">
         <li>
             <select id="step_method" style="height: 35px;width: 100px" class="form-control">
@@ -219,9 +236,24 @@
                    value="">
         </li>
     </ul>
+
+{# 域名#}
     <div class='input-group' style="width: 90%;margin-left: 5%;margin-top: 45px;">
+        <datalist id="datalist_1">
+            {% for i in project_host %}
+                <option id="project_host_{{ i.id }}" value="全局域名-{{ i.id }}">{{ i.name }}:{{ i.host }}</option>
+                
+            {% endfor %}
+        
+            {% for i in hosts %}
+                <option id="host_{{ i.id }}" value="{{ i.host }}">{{ i.host }}</option>
+            {% endfor %}
+        </datalist>
+
         <span class="input-group-addon">host</span>
-        <input type="text" id="step_host" class="form-control">
+
+        <input list="datalist_1" autocomplete="off" type="text" id="step_host" class="form-control">
+
     </div>
 
     {#    header#}
@@ -378,7 +410,7 @@ code:200"></textarea>
             {#console.log(res);#}
             var ret = eval(ret);
             //公共请求头
-            if(ret.public_header != null) {
+            if (ret.public_header != null) {
                 var project_headers = ret.public_header.split(',');
                 for (var i = 0; i < project_headers.length; i++) {
                     try {
@@ -497,7 +529,7 @@ code:200"></textarea>
             }
 
             //判断关键数据是否符合规则
-            if (step_host.slice(0, 7) != 'http://' && step_host.slice(0, 8) != 'https://') {
+            if (step_host.slice(0, 7) != 'http://' && step_host.slice(0, 8) != 'https://' && step_host.slice(0,4) != "全局域名") {
                 alert('host必须以http://或https://开头！');
                 return
             }
@@ -607,7 +639,7 @@ code:200"></textarea>
 
         for (var i = 0; i < project_headers.length; i++) {
             //首先用project_headers获取这li标签下所有 label标签，成为一个列表。然后for循环遍历，此时的project_headers[i]就是某个label，但是这个label内仍然有子元素，也就是我们要定位的input，所以还要再加.children方法来获取它下面的所有子标签，当然input是第一个，所以下标为[0]。
-                project_headers[i].children[0].checked = false;
+            project_headers[i].children[0].checked = false;
 
         }
 

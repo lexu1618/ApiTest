@@ -236,10 +236,10 @@ function showOutput(id, name) {
     <div style="border: 1px solid #ffffff;border-radius: 10px;box-shadow: 2px 2px 12px #aeaeae;padding-left: 30px;width: 500px">
 <p class='attribute'>接口自动化测试平台提供</p>
 <p class='attribute'><strong>注意:</strong> 出现问题请联系管理员！</p>
-<p class='attribute'><strong>报告生成日期:</strong> 2021-02-03 10:04:57</p>
-<p class='attribute'><strong>用例执行时间:</strong> 0:00:06.041680秒</p>
-<p class='attribute'><strong>用例执行结果:</strong> 通过 2,</p>
-<p class='attribute'><strong>执行系统:</strong> win32</p>
+<p class='attribute'><strong>报告生成日期:</strong> 2021-02-03 22:17:53</p>
+<p class='attribute'><strong>用例执行时间:</strong> 0:00:09.134089秒</p>
+<p class='attribute'><strong>用例执行结果:</strong> 通过 3,</p>
+<p class='attribute'><strong>执行系统:</strong> darwin</p>
 
 <br>
 </div>
@@ -279,11 +279,11 @@ function showOutput(id, name) {
 
 <tr class='passClass'>
     <td>MyAPP.run_case.Test</td>
-    <td>2</td>
-    <td>2</td>
+    <td>3</td>
+    <td>3</td>
     <td>0</td>
     <td>0</td>
-    <td><button class="wqrf_button" style="background-color: #ffd1e7"  onclick="javascript:showClassDetail('c1',2)">详细</button></td>
+    <td><button class="wqrf_button" style="background-color: #ffd1e7"  onclick="javascript:showClassDetail('c1',3)">详细</button></td>
 
 </tr>
 
@@ -329,12 +329,13 @@ pt1.1: 步骤的url是/sugrec?prod=pc_his&amp;from=pc_web&amp;json=1&amp;sid=328
         <pre>
         
 pt1.2: 步骤的url是/aaaaa/##qid##bbbb?error=##en##
-[host]: http://www.baidu.com
-[url]: /aaaaa/xxxxxbbbb?error=0
-[header]: {"a":'xxxxx',"b":'0'}
-[method]: get
-[body_method]: Json
-[body]: {"a":qid,"b":en,"c":0}
+
+【host】： http://www.baidu.com
+【url】： /aaaaa/xxxxxbbbb?error=0
+【header】： {'a': 'xxxxx', 'b': '0', '2': '2'}
+【method】： get
+【body_method】： Json
+【body】： {"a":'xxxxx',"b":'0',"c":0}
 返回体： &lt;!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN"&gt;
 &lt;html&gt;&lt;head&gt;
 &lt;title&gt;404 Not Found&lt;/title&gt;
@@ -354,10 +355,44 @@ pt1.2: 步骤的url是/aaaaa/##qid##bbbb?error=##en##
     </td>
 </tr>
 
+<tr id='pt1.3' class='hiddenRow'>
+    <td class='none'><div class='testcase'>test003: 我是新步骤</div></td>
+    <td colspan='5' align='center'>
+
+    <!--css div popup start-->
+    <a class="popup_liznk" onfocus='this.blur();' href="javascript:showTestDetail('div_pt1.3')" >
+        <button class="wqrf_button" style="width: auto">通过详情</button></a>
+    <div id='div_pt1.3' class="popup_window">
+        <div style='text-align: right; color:red;cursor:pointer'>
+        <a onfocus='this.blur();' onclick="document.getElementById('div_pt1.3').style.display = 'none' " >
+           [x]</a>
+        </div>
+        <pre>
+        
+pt1.3: 步骤的url是/sugrec?prod=pc_his&amp;from=pc_web&amp;json=1&amp;sid=32812_1464_33049_33059_33099_33101_32962_32846_22160&amp;hisdata=&amp;_t=1606109114553&amp;req=2&amp;csor=0
+
+【host】： http://www.baidu.com
+【url】： /sugrec?prod=pc_his&amp;from=pc_web&amp;json=1&amp;sid=32812_1464_33049_33059_33099_33101_32962_32846_22160&amp;hisdata=&amp;_t=1606109114553&amp;req=2&amp;csor=0
+【header】： {'1': '1'}
+【method】： get
+【body_method】： none
+【body】： 
+返回体： {"err_no":0,"errmsg":"","queryid":"0x350bc7e04dfb32"}
+
+
+         <div id="div100">
+        </div>
+        </pre>
+    </div> <br>
+    <!--css div popup end-->
+
+    </td>
+</tr>
+
 <tr id='total_row'>
     <td>总计</td>
-    <td>2</td>
-    <td>2</td>
+    <td>3</td>
+    <td>3</td>
     <td>0</td>
     <td>0</td>
     <td><button class="wqrf_button" style="background-color: #ffc2e6" onclick='javascript:location.reload()'>刷新</button></td>

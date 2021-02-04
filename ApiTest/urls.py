@@ -67,6 +67,10 @@ urlpatterns = [
     re_path(r"^step_get_api/$",step_get_api),
     re_path(r"^Run_Case/$",Run_Case), #运行大用例
     re_path(r"^look_report/(?P<eid>.*)/$",look_report), #查看报告
-    re_path(r"^save_project_header/$",save_project_header)
+    re_path(r"^save_project_header/$",save_project_header),
+    re_path(r"save_case_name/$",save_case_name),# 保存用例的名字
+    re_path(r"save_project_host/$",save_project_host), # 保存全局域名
+    re_path(r"project_get_login/$",project_get_login), # 获取登录态接口
+
 
 ]

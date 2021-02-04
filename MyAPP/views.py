@@ -6,7 +6,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 
 # Create your views here.
-from MyAPP.models import DB_tucao, DB_home_href, DB_project, DB_apis, DB_apis_log, DB_cases, DB_step, DB_project_header
+from MyAPP.models import DB_tucao, DB_home_href, DB_project, DB_apis, DB_apis_log, DB_cases, DB_step, DB_project_header, \
+    DB_host, DB_project_host, DB_login
 
 
 @login_required
@@ -35,28 +36,37 @@ def child_json(eid, oid=''):
         res = {
             "projects": data,
         }
+
     if eid == 'P_apis.html':
         project = DB_project.objects.filter(id=oid)[0]
         apis = DB_apis.objects.filter(project_id=oid)
         project_header = DB_project_header.objects.filter(project_id = oid)
-        print(" project_header 是 ",project_header)
+        hosts = DB_host.objects.all()
+
+        project_host = DB_project_host.objects.filter(project_id=oid)
+        print("DB_project_host:", project_host)
+        # print(" project_header 是 ",project_header)
+
         for i in apis:
             #  新增接口时，url是未定义类型，所以api界面加载会报错，AttributeError: 'NoneType' object has no attribute 'split'
             try:
                 i.short_url = i.api_url.split("?")[0][:50]
             except:
                 i.short_url = ""
-        res = {"project": project, "apis": apis,"project_header":project_header}
+        res = {"project": project, "apis": apis,"project_header":project_header,
+               "hosts":hosts,"project_host":project_host}
 
     if eid == 'P_cases.html':
         project = DB_project.objects.filter(id= oid)[0]
         Cases = DB_cases.objects.filter(project_id=oid)
         apis = DB_apis.objects.filter(project_id=oid)
         project_header = DB_project_header.objects.filter(project_id = oid)
+        hosts = DB_host.objects.all()
+        project_host = DB_project_host.objects.filter(project_id = oid)
         # for i in apis:
         #     print(i.id)
         #     print(i.name)
-        res  = {"project":project,"Cases":Cases,"apis":apis,"project_header":project_header}
+        res  = {"project":project,"hosts":hosts,"Cases":Cases,"apis":apis,"project_header":project_header,"project_host":project_host}
         print(res)
 
     if eid == 'P_project_set.html':
@@ -162,7 +172,7 @@ def open_cases(request, id):
     return render(request, "welcome.html", {"whichHTML": "P_cases.html", "oid": project_id})
 
 
-# 保存项目公共请求头
+# 保存项目全局请求头
 def save_project_header(request):
     project_id = request.GET['project_id']
     req_names = request.GET['req_names']
@@ -182,6 +192,29 @@ def save_project_header(request):
         else:
             try:
                 DB_project_header.objects.filter(id=ids[i]).delete()
+            except:
+                pass
+    return HttpResponse('')
+
+# 保存项目全局域名
+def save_project_host(request):
+    project_id = request.GET['project_id']
+    req_names = request.GET['req_names']
+    req_hosts = request.GET["req_hosts"]
+
+    req_ids = request.GET['req_ids']
+    names = req_names.split(',')
+    hosts = req_hosts.split(",")
+    ids = req_ids.split(',')
+    for i in range(len(ids)):
+        if names[i] != '':
+            if ids[i] == 'new':
+                DB_project_host.objects.create(project_id=project_id, name=names[i], host=hosts[i])
+            else:
+                DB_project_host.objects.filter(id=ids[i]).update(name=names[i],host=hosts[i])
+        else:
+            try:
+                DB_project_host.objects.filter(id=ids[i]).delete()
             except:
                 pass
     return HttpResponse('')
@@ -212,6 +245,12 @@ def get_small(request):
     print(res)
     print(type(res))
     return HttpResponse(json.dumps(res), content_type='application/json')
+
+def save_case_name(request):
+    id = request.GET["id"]
+    name = request.GET["name"]
+    DB_cases.objects.filter(id=id).update(name=name)
+    return HttpResponse("")
 
 
 def add_new_step(request):
@@ -393,7 +432,7 @@ def get_api_data(request):
     # print("api :",api)
     return HttpResponse(json.dumps(api), content_type='application/json')
 
-
+# 调试层发送请求
 def Api_send(request):
     # 提取所有数据
     ts_api_name = request.GET["api_name"]
@@ -401,6 +440,10 @@ def Api_send(request):
     ts_method = request.GET["ts_method"]
     ts_url = request.GET["ts_url"]
     ts_host = request.GET["ts_host"]
+    # if "全局域名" in ts_host:
+    if ts_host[:4] == "全局域名":
+        project_host_id = ts_host.split("-")[1]
+        ts_host = DB_project_host.objects.filter(id=project_host_id)[0].host
     ts_header = request.GET["ts_header"]
     ts_body_method = request.GET["ts_body_method"]
     # 前段ajax 传过来的时候toString 转化为字符串了，这里要还原成数组
@@ -426,12 +469,11 @@ def Api_send(request):
 
 
     for i in ts_project_headers:
-        project_header = DB_project_header.objects.filter(id=i)[0]
-        header[project_header.key] = project_header.value
+        if i != "":  #当选择完公共请求头后取消选择，然后再请求就会报错的问题：
+            project_header = DB_project_header.objects.filter(id=i)[0]
+            header[project_header.key] = project_header.value
 
     print("header :",header)
-
-
 
     # 拼接完整url
     if ts_host[-1] == '/' and ts_url[0] == '/':  # 都有/
@@ -475,6 +517,8 @@ def Api_send(request):
         # 把返回值传递给前端页面
         # return HttpResponse("{'code':200}")
         res.encoding = 'utf-8'
+
+        DB_host.objects.update_or_create(host=ts_host)
         return HttpResponse(res.text)
     except Exception as e:
         return HttpResponse(str(e))
@@ -600,3 +644,15 @@ def error_request(request):
     except:
         res_json = {"response": "对不起，接口异常", "span_text": span_text}
         return HttpResponse(json.dumps(res_json), content_type="application/json")
+
+
+
+def project_get_login(request):
+    project_id = request.GET["project_id"]
+    # print("project_id:",project_id)
+    try:
+        login = DB_login.objects.filter(project_id=project_id).values()[0]
+    except:
+        login = {}
+    # print("login:",login)
+    return HttpResponse(json.dumps(login),content_type='application/json')

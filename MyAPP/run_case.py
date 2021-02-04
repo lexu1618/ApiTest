@@ -3,6 +3,14 @@ import time
 import unittest
 from MyAPP.A_WQRFhtmlRunner import HTMLTestRunner
 
+import sys,os,django
+path="../ApiTest"
+sys.path.append(path)
+os.environ.setdefault("DJANGO_SETTINGS_MODULE","ApiTest.sttings")
+django.setup()
+from MyAPP.models import *
+
+
 
 class Test(unittest.TestCase):
     def demo(self, step):
@@ -13,6 +21,9 @@ class Test(unittest.TestCase):
         api_method = step.api_method
         api_url = step.api_url
         api_host = step.api_host
+        if api_host[:4] == "全局域名":
+            project_host_id = api_host.split("-")[1]
+            api_host =DB_project_host.objects.filter(id = project_host_id)
         api_header = step.api_header
         # print("api_header是{}".format(api_header))
         api_body_method = step.api_body_method
@@ -24,11 +35,13 @@ class Test(unittest.TestCase):
         assert_qz = step.assert_qz
         assert_zz = step.assert_zz
         mock_res = step.mock_res
+        ts_project_headers = step.public_header.split(",")
 
         if mock_res not in ["",None,"None"]:
             res = mock_res
         else:
         # 检查是否需要进行替换占位符  得出来的结果时列表
+        ## 检查是否需要进行替换占位符的
             rlist_url = re.findall(r"##(.*?)##", api_url)
             for i in rlist_url:
                 api_url = api_url.replace("##" + i + "##", str(eval(i)))
@@ -36,10 +49,6 @@ class Test(unittest.TestCase):
             rlist_header = re.findall(r"##(.*?)##", api_header)
             for i in rlist_header:
                 api_header = api_header.replace("##" + i + "##", repr(str(eval(i))))
-
-            # rlist_body = re.findall(r"##(.*?)##", api_body)
-            # for i in rlist_body:
-            #     api_body = api_url.replace("##" + i + "##", eval(i))
 
             if api_body_method == 'none':
                 pass
@@ -51,27 +60,34 @@ class Test(unittest.TestCase):
             elif api_body_method == 'Json':
                 rlist_body = re.findall(r"##(.*?)##", api_body)
                 for i in rlist_body:
-                    api_body = api_body.replace("##" + i + "##", eval(repr(i)))
+                    api_body = api_body.replace("##" + i + "##", repr(eval(i)))
 
             else:
                 rlist_body = re.findall(r"##(.*?)##", api_body)
                 for i in rlist_body:
                     api_body = api_body.replace("##" + i + "##", str(eval(i)))
 
-            print("[host]:", api_host)
-            print("[url]:", api_url)
-            print("[header]:", api_header)
-            print("[method]:", api_method)
-            print("[body_method]:", api_body_method)
-            print("[body]:", api_body)
-
-            # 处理header
+                # 处理header
             try:
                 header = json.loads(api_header)  # 处理header
             except:
                 header = eval(api_header)
 
-            # url 拼接
+                # 在这遍历公共请求头，并把其加入到header的字典中。
+
+            for i in ts_project_headers:
+                project_header = DB_project_header.objects.filter(id=i)[0]
+                header[project_header.key] = project_header.value
+
+                ## 输出请求数据
+            print('\n【host】：', api_host)
+            print('【url】：', api_url)
+            print('【header】：', header)
+            print('【method】：', api_method)
+            print('【body_method】：', api_body_method)
+            print('【body】：', api_body)  # 目前graphQL方法的显示上仍然未优化过
+
+        # url 拼接
             if api_host[-1] == '/' and api_url[0] == '/':  # 都有/
                 url = api_host[:-1] + api_url
             elif api_host[-1] != '/' and api_url[0] != '/':  # 都没有/
@@ -110,6 +126,7 @@ class Test(unittest.TestCase):
                 # 把返回值传递给前端页面
                 response = requests.request(api_method.upper(), url, headers=header, data=api_body.encode('utf-8'))
             response.encoding = "utf-8"
+            DB_host.objects.update_or_create(host=api_host)
             res = response.text
         print("返回体：", res)
         # 对res 进行返回值提取

@@ -116,3 +116,32 @@ class DB_project_header(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class DB_host(models.Model):
+    host = models.CharField(max_length=100,null=True)
+    des = models.CharField(max_length=100,null=True)
+
+    def __str__(self):
+        return self.host
+
+
+class DB_project_host(models.Model):
+    project_id = models.CharField(max_length=50,null=True)
+    name = models.CharField(max_length=50,null=True)
+    host = models.TextField(null=True)
+
+    def __str__(self):
+        return self.name+self.host
+
+
+class DB_login(models.Model):
+    project_id = models.CharField(max_length=10,null=True)
+    api_method = models.CharField(max_length=10,null=True)
+    api_url = models.CharField(max_length=1000,null=True)
+    api_header = models.CharField(max_length=1000,null=True)
+    api_host = models.CharField(max_length=1000,null=True)
+    body_method = models.CharField(max_length=1000,null=True)
+    api_body = models.CharField(max_length=1000,null=True)
+    sign = models.CharField(max_length=1000,null=True)  # 是否验签
+    set = models.CharField(max_length=1000,null=True)  # 提取设置
